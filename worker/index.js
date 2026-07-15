@@ -308,7 +308,7 @@ async function applyCommand(env, channel, rawText) {
       await sendSmsViaTwilio(
         env,
         state.contact_number,
-        `${text}\n\nLocation update: ${coords.lat.toFixed(3)},${coords.lon.toFixed(3)}`
+        `Location Update: ${text} (${coords.lat.toFixed(3)},${coords.lon.toFixed(3)})`
       );
     }
   }
