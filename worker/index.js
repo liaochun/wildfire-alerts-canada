@@ -12,6 +12,7 @@ const DEFAULT_STATE = {
   channels: { sms: true, discord: true, email: true },
   trip_mode: false,
   last_trip_reminder: null,
+  contact_number: null,
 };
 
 const CWFIS_URL = "https://geoserver.cwfif.nrcan.gc.ca/geoserver/wfs";
@@ -42,6 +43,7 @@ async function getState(env) {
     channels: { ...DEFAULT_STATE.channels, ...(parsed.channels || {}) },
     trip_mode: parsed.trip_mode ?? false,
     last_trip_reminder: parsed.last_trip_reminder ?? null,
+    contact_number: parsed.contact_number ?? null,
   };
 }
 
@@ -54,10 +56,13 @@ function statusReply(state) {
   const loc = state.location.lat != null
     ? `${state.location.lat.toFixed(3)},${state.location.lon.toFixed(3)} (from: "${state.location.raw_input}")`
     : "not set";
-  return (
-    `SMS: ${c.sms ? "on" : "paused"} | Discord: ${c.discord ? "on" : "paused"} | ` +
-    `Email: ${c.email ? "on" : "paused"}\nLocation: ${loc}\nTimezone: ${state.timezone || "not set"}`
-  );
+  return [
+    `SMS: ${c.sms ? "on" : "paused"} | Discord: ${c.discord ? "on" : "paused"} | Email: ${c.email ? "on" : "paused"}`,
+    `Location: ${loc}`,
+    `Timezone: ${state.timezone || "not set"}`,
+    `Trip mode: ${state.trip_mode ? "on" : "off"}`,
+    `Contact: ${state.contact_number || "not set"}`,
+  ].join("\n\n");
 }
 
 const COORD_RE = /(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/;
@@ -180,29 +185,32 @@ async function formatFireSnapshot(lat, lon) {
   return `Current fires within 500km (closest ${fires.length}):\n\n` + lines.join("\n\n");
 }
 
-async function sendSmsViaTwilio(env, body) {
-  if (!env.TWILIO_ACCOUNT_SID || !env.TWILIO_FROM_NUMBER || !env.TWILIO_TO_NUMBER) return;
+async function sendSmsViaTwilio(env, to, body) {
+  if (!env.TWILIO_ACCOUNT_SID || !env.TWILIO_FROM_NUMBER || !to) return;
   await fetch(`https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_SID}/Messages.json`, {
     method: "POST",
     headers: {
       Authorization: "Basic " + btoa(`${env.TWILIO_ACCOUNT_SID}:${env.TWILIO_AUTH_TOKEN}`),
       "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: new URLSearchParams({ From: env.TWILIO_FROM_NUMBER, To: env.TWILIO_TO_NUMBER, Body: body }),
+    body: new URLSearchParams({ From: env.TWILIO_FROM_NUMBER, To: to, Body: body }),
   });
 }
 
+const PHONE_RE = /^\+?[1-9]\d{7,14}$/;
+
 function helpText() {
-  return (
-    "Wildfire alert commands:\n" +
-    "STATUS - show current settings\n" +
-    "CHECK - immediate fire check near your location\n" +
-    "PAUSE / PAUSE ALL - pause alerts (this platform / everywhere)\n" +
-    "RESUME / RESUME ALL - resume alerts\n" +
-    "TRIP START / TRIP STOP - road trip mode with periodic location reminders\n" +
-    "OPTIONS - show this list\n" +
-    "Or just send a location: a Maps link, \"lat,lon\", or a city/town name"
-  );
+  return [
+    "Wildfire alert commands:",
+    "STATUS - show current settings",
+    "CHECK - immediate fire check near your location",
+    "PAUSE / PAUSE ALL - pause alerts (this platform / everywhere)",
+    "RESUME / RESUME ALL - resume alerts",
+    "TRIP START / TRIP STOP - road trip mode with periodic location reminders",
+    "CONTACT <phone number> - also text that number your location whenever you update it during a trip (CONTACT OFF to stop)",
+    "OPTIONS - show this list",
+    "Or just send a location: a Maps link, \"lat,lon\", or a city/town name",
+  ].join("\n\n");
 }
 
 async function applyCommand(env, channel, rawText) {
@@ -266,6 +274,25 @@ async function applyCommand(env, channel, rawText) {
     return "Trip mode off. Location reminders stopped.";
   }
 
+  if (upper === "CONTACT" || upper.startsWith("CONTACT ")) {
+    const arg = text.slice("CONTACT".length).trim();
+    if (!arg || arg.toUpperCase() === "OFF" || arg.toUpperCase() === "STOP") {
+      if (!arg) {
+        return "Reply with the phone number to notify on each location update during a trip, e.g. CONTACT +15551234567. Text CONTACT OFF to stop.";
+      }
+      state.contact_number = null;
+      await setState(env, state);
+      return "Contact notifications off.";
+    }
+    const digits = arg.replace(/[\s()-]/g, "");
+    if (!PHONE_RE.test(digits)) {
+      return `That doesn't look like a phone number: "${arg}". Try e.g. CONTACT +15551234567.`;
+    }
+    state.contact_number = digits.startsWith("+") ? digits : `+1${digits}`;
+    await setState(env, state);
+    return `Contact set to ${state.contact_number}. They'll get a text with your location every time you update it while trip mode is on.`;
+  }
+
   // Otherwise: treat as a location update.
   const coords = await resolveLocation(text);
   if (!coords) {
@@ -278,6 +305,13 @@ async function applyCommand(env, channel, rawText) {
   let reply = `Location updated to ${coords.lat.toFixed(3)},${coords.lon.toFixed(3)} (timezone: ${state.timezone}). SMS alerts now scoped to 500km of here.`;
   if (state.trip_mode) {
     reply += "\n\n" + (await formatFireSnapshot(coords.lat, coords.lon));
+    if (state.contact_number) {
+      await sendSmsViaTwilio(
+        env,
+        state.contact_number,
+        `Location update: ${coords.lat.toFixed(3)},${coords.lon.toFixed(3)} (${text}) - wildfire trip tracker`
+      );
+    }
   }
   return reply;
 }
@@ -426,6 +460,7 @@ export default {
 
     await sendSmsViaTwilio(
       env,
+      env.TWILIO_TO_NUMBER,
       "Trip mode: reply FIRE: <your location> to update and get an immediate fire check, or I'll keep using your last known location. Text FIRE: TRIP STOP to turn this off."
     );
     state.last_trip_reminder = slotKey;
