@@ -13,6 +13,7 @@ import os
 import re
 import smtplib
 import sys
+import time
 import urllib.parse
 from datetime import datetime, timezone
 from email.mime.text import MIMEText
@@ -171,6 +172,24 @@ def summarize_firms(rows, watermark):
     return list(clusters.items()), new_watermark
 
 
+def reverse_geocode_city(lat, lon):
+    try:
+        resp = requests.get(
+            "https://nominatim.openstreetmap.org/reverse",
+            params={"format": "json", "lat": lat, "lon": lon, "zoom": 10},
+            headers={"User-Agent": "wildfire-alerts-canada/1.0 (personal project)"},
+            timeout=15,
+        )
+        resp.raise_for_status()
+        addr = resp.json().get("address", {})
+        for key in ("city", "town", "village", "hamlet", "municipality", "county"):
+            if addr.get(key):
+                return addr[key]
+    except requests.RequestException:
+        pass
+    return None
+
+
 def stage_name(code):
     return {"OC": "Out of Control", "BH": "Being Held", "UC": "Under Control", "EX": "Extinguished"}.get(code, code)
 
@@ -255,19 +274,29 @@ def main():
             send_discord(env("DISCORD_WEBHOOK_URL"), line)
 
     if channels.get("sms") and loc_lat is not None and loc_lon is not None:
-        for fid, prev_stage, new_stage, fire in cwfis_events:
+        sms_lines = []
+        for i, (fid, prev_stage, new_stage, fire) in enumerate(cwfis_events):
             if fire.get("lat") is None or fire.get("lon") is None:
                 continue
             dist = haversine_km(loc_lat, loc_lon, fire["lat"], fire["lon"])
             if dist <= 500:
-                body = format_cwfis_event(fid, prev_stage, new_stage, fire) + f" ({dist:.0f}km away)"
-                send_sms(
-                    env("TWILIO_ACCOUNT_SID", required=True),
-                    env("TWILIO_AUTH_TOKEN", required=True),
-                    env("TWILIO_FROM_NUMBER", required=True),
-                    env("TWILIO_TO_NUMBER", required=True),
-                    body,
+                if i > 0:
+                    time.sleep(1)  # respect Nominatim's 1 req/sec usage policy
+                city = reverse_geocode_city(fire["lat"], fire["lon"])
+                near = city if city else f"{fire['lat']:.2f},{fire['lon']:.2f}"
+                sms_lines.append(
+                    f"Fire near {near} ({fire.get('agency')}, {fire.get('size')} ha): "
+                    f"{stage_name(prev_stage) if prev_stage else 'new'} -> {stage_name(new_stage)}, {dist:.0f}km away"
                 )
+        if sms_lines:
+            header = f"Wildfire alert ({len(sms_lines)} fire{'s' if len(sms_lines) != 1 else ''} near you):\n"
+            send_sms(
+                env("TWILIO_ACCOUNT_SID", required=True),
+                env("TWILIO_AUTH_TOKEN", required=True),
+                env("TWILIO_FROM_NUMBER", required=True),
+                env("TWILIO_TO_NUMBER", required=True),
+                header + "\n".join(sms_lines),
+            )
 
     gmail_address = env("GMAIL_ADDRESS")
     if channels.get("email") and discord_lines and gmail_address:
