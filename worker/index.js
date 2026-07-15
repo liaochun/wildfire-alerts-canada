@@ -184,6 +184,25 @@ async function reverseGeocodeCity(lat, lon) {
   return null;
 }
 
+async function reverseGeocodeCityProvince(lat, lon) {
+  try {
+    const resp = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`,
+      { headers: { "User-Agent": "wildfire-alerts-canada/1.0 (personal project)" } }
+    );
+    if (!resp.ok) return null;
+    const addr = (await resp.json()).address || {};
+    let city = null;
+    for (const key of ["city", "town", "village", "hamlet", "municipality", "county"]) {
+      if (addr[key]) { city = addr[key]; break; }
+    }
+    if (!city) return null;
+    return addr.state ? `${city}, ${addr.state}` : city;
+  } catch (_) {
+    return null;
+  }
+}
+
 async function fetchNearbyFires(lat, lon, radiusKm, maxResults) {
   const nowIso = new Date().toISOString().slice(0, 19);
   const cql = `record_start<=${nowIso}Z AND record_end>=${nowIso}Z`;
@@ -374,7 +393,9 @@ async function applyCommand(env, channel, rawText, fromNumber) {
     const snapshot = await formatFireSnapshot(coords.lat, coords.lon);
     reply += "\n\n" + snapshot;
     if (state.contact_number) {
-      let contactMsg = `Location Update: ${text} (${coords.lat.toFixed(3)},${coords.lon.toFixed(3)})\n\nText UPDATE to ask for a location update.`;
+      const cityProvince = await reverseGeocodeCityProvince(coords.lat, coords.lon);
+      const label = cityProvince ? `${cityProvince} (${text})` : text;
+      let contactMsg = `Location Update: ${label} (${coords.lat.toFixed(3)},${coords.lon.toFixed(3)})\n\nText UPDATE to ask for a location update.`;
       if (state.contact_fire_alerts) {
         contactMsg += "\n\n" + snapshot;
       }
