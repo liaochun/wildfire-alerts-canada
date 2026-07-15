@@ -33,6 +33,26 @@ function tzFromLon(lon) {
   return "America/St_Johns";
 }
 
+function formatSlotClock(minutesSince8am, wrapsToTomorrow) {
+  const totalMinutes = 8 * 60 + minutesSince8am;
+  const hour = Math.floor(totalMinutes / 60) % 24;
+  const minute = totalMinutes % 60;
+  const suffix = hour < 12 ? "am" : "pm";
+  const hour12 = hour % 12 || 12;
+  const timeStr = `${hour12}:${String(minute).padStart(2, "0")}${suffix}`;
+  return wrapsToTomorrow ? `${timeStr} tomorrow` : timeStr;
+}
+
+function nextSlotTimeStr(tzName) {
+  const nowLocal = new Date(new Date().toLocaleString("en-US", { timeZone: tzName }));
+  const minutesSince8am = nowLocal.getHours() * 60 + nowLocal.getMinutes() - 8 * 60;
+  if (minutesSince8am < 0) return formatSlotClock(0, false); // before window opens today
+  if (minutesSince8am > 23 * 60 + 45 - 8 * 60) return formatSlotClock(0, true); // after window closed
+  const slotIndex = Math.floor(minutesSince8am / 45);
+  const nextIndex = slotIndex + 1;
+  return nextIndex > 21 ? formatSlotClock(0, true) : formatSlotClock(nextIndex * 45, false);
+}
+
 async function getState(env) {
   const raw = await env.CONTROL_KV.get(KV_KEY);
   if (!raw) return structuredClone(DEFAULT_STATE);
@@ -173,14 +193,18 @@ async function fetchNearbyFires(lat, lon, radiusKm, maxResults) {
 
 async function formatFireSnapshot(lat, lon) {
   const fires = await fetchNearbyFires(lat, lon, 500, 5);
-  if (!fires.length) return "No active fires within 500km of your current location right now.";
+  const originCity = await reverseGeocodeCity(lat, lon);
+  const originLabel = originCity
+    ? `${originCity} (${lat.toFixed(3)},${lon.toFixed(3)})`
+    : `${lat.toFixed(3)},${lon.toFixed(3)}`;
+  if (!fires.length) return `No active fires within 500km of ${originLabel} right now.`;
   const lines = [];
   for (const f of fires) {
     const city = await reverseGeocodeCity(f.lat, f.lon);
     const place = city ? `${city} (${f.lat.toFixed(2)},${f.lon.toFixed(2)})` : `${f.lat.toFixed(2)},${f.lon.toFixed(2)}`;
     lines.push(`${place} (${f.agency}, ${f.size} ha): ${stageName(f.stage)}, ${f.dist.toFixed(0)}km away`);
   }
-  return `Current fires within 500km of last known location (closest ${fires.length}):\n\n` + lines.join("\n\n");
+  return `Current fires within 500km of ${originLabel} (closest ${fires.length}):\n\n` + lines.join("\n\n");
 }
 
 async function sendSmsViaTwilio(env, to, body) {
@@ -311,7 +335,7 @@ async function applyCommand(env, channel, rawText, fromNumber) {
   state.timezone = tzFromLon(coords.lon);
   await setState(env, state);
 
-  let reply = `Location updated to ${coords.lat.toFixed(3)},${coords.lon.toFixed(3)} (timezone: ${state.timezone}). SMS alerts now scoped to 500km of here.`;
+  let reply = `Location updated to ${coords.lat.toFixed(3)},${coords.lon.toFixed(3)} (timezone: ${state.timezone}). SMS alerts now scoped to 500km of here.\n\nNext check: ${nextSlotTimeStr(state.timezone)}`;
   if (state.trip_mode) {
     reply += "\n\n" + (await formatFireSnapshot(coords.lat, coords.lon));
     if (state.contact_number) {
