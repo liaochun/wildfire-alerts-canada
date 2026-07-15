@@ -78,6 +78,21 @@ def current_slot(tz_name):
     return now_local.date().isoformat(), minutes_since_8am // 45
 
 
+def next_slot_time_str(slot_index):
+    """Human-friendly clock time of the next scheduled 45-min slot."""
+    next_index = slot_index + 1
+    wraps_to_tomorrow = next_index > 21
+    if wraps_to_tomorrow:
+        next_index = 0
+    total_minutes = 8 * 60 + next_index * 45
+    hour = (total_minutes // 60) % 24
+    minute = total_minutes % 60
+    suffix = "am" if hour < 12 else "pm"
+    hour12 = hour % 12 or 12
+    time_str = f"{hour12}:{minute:02d}{suffix}"
+    return f"{time_str} tomorrow" if wraps_to_tomorrow else time_str
+
+
 def fetch_cwfis():
     now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
     cql = f"record_start<={now_iso}Z AND record_end>={now_iso}Z"
@@ -236,6 +251,7 @@ def main():
 
     state = load_state()
 
+    slot = None
     if tz_name:
         slot = current_slot(tz_name)
         if slot is None:
@@ -291,12 +307,13 @@ def main():
                 )
         if sms_lines:
             header = f"Wildfire alert ({len(sms_lines)} fire{'s' if len(sms_lines) != 1 else ''} near you):\n\n"
+            footer = f"\n\nNext check: {next_slot_time_str(slot[1])}" if slot is not None else ""
             send_sms(
                 env("TWILIO_ACCOUNT_SID", required=True),
                 env("TWILIO_AUTH_TOKEN", required=True),
                 env("TWILIO_FROM_NUMBER", required=True),
                 env("TWILIO_TO_NUMBER", required=True),
-                header + "\n\n".join(sms_lines),
+                header + "\n\n".join(sms_lines) + footer,
             )
 
     gmail_address = env("GMAIL_ADDRESS")
