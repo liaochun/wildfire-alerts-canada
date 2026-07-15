@@ -190,6 +190,28 @@ async function verifyDiscordSignature(request, publicKeyHex, bodyText) {
   }
 }
 
+async function proxyToTalkyto(bodyText, env) {
+  if (!env.TALKYTO_FORWARD_URL) {
+    return new Response(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`, {
+      headers: { "Content-Type": "text/xml" },
+    });
+  }
+  try {
+    const resp = await fetch(env.TALKYTO_FORWARD_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: bodyText,
+    });
+    const respText = await resp.text();
+    const contentType = resp.headers.get("Content-Type") || "text/xml";
+    return new Response(respText, { status: resp.status, headers: { "Content-Type": contentType } });
+  } catch (_) {
+    return new Response(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`, {
+      headers: { "Content-Type": "text/xml" },
+    });
+  }
+}
+
 function requireBearer(request, env) {
   const auth = request.headers.get("Authorization") || "";
   return auth === `Bearer ${env.API_SHARED_SECRET}`;
@@ -204,7 +226,17 @@ export default {
       const params = Object.fromEntries(new URLSearchParams(bodyText));
       const ok = await verifyTwilioSignature(request, env.TWILIO_AUTH_TOKEN, params);
       if (!ok) return new Response("Forbidden", { status: 403 });
-      const reply = await applyCommand(env, "sms", params.Body || "");
+
+      // This number's Messaging Service also carries an existing business
+      // texting integration (Talkyto). Only messages explicitly prefixed
+      // with FIRE: are ours; everything else is passed through untouched
+      // so normal texting keeps working.
+      const fireMatch = (params.Body || "").match(/^\s*FIRE:?\s*(.*)$/is);
+      if (!fireMatch) {
+        return await proxyToTalkyto(bodyText, env);
+      }
+
+      const reply = await applyCommand(env, "sms", fireMatch[1]);
       const twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${escapeXml(reply)}</Message></Response>`;
       return new Response(twiml, { headers: { "Content-Type": "text/xml" } });
     }
