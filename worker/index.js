@@ -192,6 +192,19 @@ async function sendSmsViaTwilio(env, body) {
   });
 }
 
+function helpText() {
+  return (
+    "Wildfire alert commands:\n" +
+    "STATUS - show current settings\n" +
+    "CHECK - immediate fire check near your location\n" +
+    "PAUSE / PAUSE ALL - pause alerts (this platform / everywhere)\n" +
+    "RESUME / RESUME ALL - resume alerts\n" +
+    "TRIP START / TRIP STOP - road trip mode with periodic location reminders\n" +
+    "OPTIONS - show this list\n" +
+    "Or just send a location: a Maps link, \"lat,lon\", or a city/town name"
+  );
+}
+
 async function applyCommand(env, channel, rawText) {
   const text = (rawText || "").trim();
   const upper = text.toUpperCase();
@@ -199,6 +212,10 @@ async function applyCommand(env, channel, rawText) {
 
   if (upper === "STATUS") {
     return statusReply(state);
+  }
+
+  if (upper === "OPTIONS" || upper === "HELP") {
+    return helpText();
   }
 
   if (upper === "PAUSE" || upper === "PAUSE ALL") {
@@ -237,7 +254,7 @@ async function applyCommand(env, channel, rawText) {
     state.last_trip_reminder = null;
     await setState(env, state);
     return (
-      "Trip mode on. I'll ping you about once an hour (during your 8am-midnight window) to update your " +
+      "Trip mode on. I'll ping you about every 1.5 hours (during your 8am-midnight window) to update your " +
       "location. Text a new location any time for an immediate fire check - if you don't, I'll keep using " +
       "your last known one. Text TRIP STOP to turn this off."
     );
@@ -246,13 +263,13 @@ async function applyCommand(env, channel, rawText) {
   if (upper === "TRIP STOP" || upper === "TRIP OFF" || upper === "TRIP END") {
     state.trip_mode = false;
     await setState(env, state);
-    return "Trip mode off. Hourly location reminders stopped.";
+    return "Trip mode off. Location reminders stopped.";
   }
 
   // Otherwise: treat as a location update.
   const coords = await resolveLocation(text);
   if (!coords) {
-    return `Couldn't figure out a location from "${text}". Send a Maps link, "lat,lon", or a city/town name - or PAUSE/RESUME/STATUS/CHECK/TRIP START/TRIP STOP.`;
+    return `Couldn't figure out a location from "${text}".\n\n` + helpText();
   }
   state.location = { lat: coords.lat, lon: coords.lon, raw_input: text, updated_at: new Date().toISOString() };
   state.timezone = tzFromLon(coords.lon);
@@ -404,14 +421,14 @@ export default {
     const hour = nowLocal.getHours();
     if (hour < 8) return; // outside the 8am-midnight window - platform silence hours
 
-    const hourKey = `${nowLocal.toISOString().slice(0, 10)}T${String(hour).padStart(2, "0")}`;
-    if (state.last_trip_reminder === hourKey) return; // already reminded this hour
+    const slotKey = `${nowLocal.toISOString().slice(0, 10)}T${String(hour).padStart(2, "0")}:${String(nowLocal.getMinutes()).padStart(2, "0")}`;
+    if (state.last_trip_reminder === slotKey) return; // already reminded this slot
 
     await sendSmsViaTwilio(
       env,
       "Trip mode: reply FIRE: <your location> to update and get an immediate fire check, or I'll keep using your last known location. Text FIRE: TRIP STOP to turn this off."
     );
-    state.last_trip_reminder = hourKey;
+    state.last_trip_reminder = slotKey;
     await setState(env, state);
   },
 };
