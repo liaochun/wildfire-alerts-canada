@@ -269,8 +269,8 @@ def main():
                     body,
                 )
 
-    if channels.get("email") and discord_lines:
-        gmail_address = env("GMAIL_ADDRESS", required=True)
+    gmail_address = env("GMAIL_ADDRESS")
+    if channels.get("email") and discord_lines and gmail_address:
         send_email(
             gmail_address,
             env("GMAIL_APP_PASSWORD", required=True),
