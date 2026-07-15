@@ -199,7 +199,7 @@ async function sendSmsViaTwilio(env, to, body) {
 
 const PHONE_RE = /^\+?[1-9]\d{7,14}$/;
 
-function helpText() {
+function helpText(state) {
   return [
     "Wildfire alert commands:",
     "STATUS - show current settings",
@@ -207,7 +207,8 @@ function helpText() {
     "PAUSE / PAUSE ALL - pause alerts (this platform / everywhere)",
     "RESUME / RESUME ALL - resume alerts",
     "TRIP START / TRIP STOP - road trip mode with periodic location reminders",
-    "CONTACT <phone number> - also text that number your location whenever you update it during a trip (CONTACT OFF to stop)",
+    "CONTACT <phone number> - also text that number your location whenever you update it during a trip (CONTACT OFF to stop)" +
+      (state?.contact_number ? ` [currently: ${state.contact_number}]` : ""),
     "OPTIONS - show this list",
     "Or just send a location: a Maps link, \"lat,lon\", or a city/town name",
   ].join("\n\n");
@@ -223,7 +224,7 @@ async function applyCommand(env, channel, rawText) {
   }
 
   if (upper === "OPTIONS" || upper === "HELP") {
-    return helpText();
+    return helpText(state);
   }
 
   if (upper === "PAUSE" || upper === "PAUSE ALL") {
@@ -296,7 +297,7 @@ async function applyCommand(env, channel, rawText) {
   // Otherwise: treat as a location update.
   const coords = await resolveLocation(text);
   if (!coords) {
-    return `Couldn't figure out a location from "${text}".\n\n` + helpText();
+    return `Couldn't figure out a location from "${text}".\n\n` + helpText(state);
   }
   state.location = { lat: coords.lat, lon: coords.lon, raw_input: text, updated_at: new Date().toISOString() };
   state.timezone = tzFromLon(coords.lon);
