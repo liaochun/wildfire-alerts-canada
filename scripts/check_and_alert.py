@@ -289,13 +289,13 @@ def main():
                     f"{stage_name(prev_stage) if prev_stage else 'new'} -> {stage_name(new_stage)}, {dist:.0f}km away"
                 )
         if sms_lines:
-            header = f"Wildfire alert ({len(sms_lines)} fire{'s' if len(sms_lines) != 1 else ''} near you):\n"
+            header = f"Wildfire alert ({len(sms_lines)} fire{'s' if len(sms_lines) != 1 else ''} near you):\n\n"
             send_sms(
                 env("TWILIO_ACCOUNT_SID", required=True),
                 env("TWILIO_AUTH_TOKEN", required=True),
                 env("TWILIO_FROM_NUMBER", required=True),
                 env("TWILIO_TO_NUMBER", required=True),
-                header + "\n".join(sms_lines),
+                header + "\n\n".join(sms_lines),
             )
 
     gmail_address = env("GMAIL_ADDRESS")
