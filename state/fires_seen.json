@@ -95,7 +95,7 @@
       "agency": "AB",
       "lat": 56.60142,
       "lon": -112.18578,
-      "size": 0.2,
+      "size": 0.02,
       "stage": "OC"
     },
     "2026_AB_RWF-036-2026": {
@@ -167,6 +167,13 @@
       "lon": -119.35462,
       "size": 2.21,
       "stage": "UC"
+    },
+    "2026_BC_2026-K60843": {
+      "agency": "BC",
+      "lat": 49.34653,
+      "lon": -120.76108,
+      "size": 0.1,
+      "stage": "OC"
     },
     "2026_BC_2026-K70597": {
       "agency": "BC",
@@ -1160,7 +1167,7 @@
       "lat": 53.92972,
       "lon": -97.85167,
       "size": 2,
-      "stage": "OC"
+      "stage": "UC"
     },
     "2026_MB_MB-NO191": {
       "agency": "MB",
@@ -2646,6 +2653,27 @@
       "size": 200,
       "stage": "OC"
     },
+    "2026_NT_ZF040-26": {
+      "agency": "NT",
+      "lat": 65.8042,
+      "lon": -113.9895,
+      "size": 15,
+      "stage": "OC"
+    },
+    "2026_NT_ZF041-26": {
+      "agency": "NT",
+      "lat": 65.86368,
+      "lon": -114.50603,
+      "size": 215,
+      "stage": "OC"
+    },
+    "2026_NT_ZF042-26": {
+      "agency": "NT",
+      "lat": 63.7245,
+      "lon": -118.60282,
+      "size": 400,
+      "stage": "OC"
+    },
     "2026_ON_COC_FIRE_007": {
       "agency": "ON",
       "lat": 55.5315,
@@ -2898,13 +2926,6 @@
       "size": 4,
       "stage": "OC"
     },
-    "2026_ON_FOR_FIRE_012": {
-      "agency": "ON",
-      "lat": 48.1657,
-      "lon": -91.3383,
-      "size": 28.5,
-      "stage": "OC"
-    },
     "2026_ON_FOR_FIRE_013": {
       "agency": "ON",
       "lat": 48.2768,
@@ -2924,13 +2945,6 @@
       "lat": 48.5429,
       "lon": -91.4154,
       "size": 48261.4,
-      "stage": "OC"
-    },
-    "2026_ON_FOR_FIRE_028": {
-      "agency": "ON",
-      "lat": 48.163,
-      "lon": -91.1595,
-      "size": 800,
       "stage": "OC"
     },
     "2026_ON_FOR_FIRE_035": {
@@ -3070,7 +3084,7 @@
       "agency": "ON",
       "lat": 50.4338,
       "lon": -87.4287,
-      "size": 500,
+      "size": 1500,
       "stage": "OC"
     },
     "2026_ON_NIP_FIRE_039": {
@@ -3211,7 +3225,7 @@
       "lat": 47.1496,
       "lon": -80.2527,
       "size": 0.2,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_ON_RED_FIRE_009": {
       "agency": "ON",
@@ -3749,7 +3763,7 @@
       "agency": "ON",
       "lat": 50.6828,
       "lon": -89.468,
-      "size": 1800,
+      "size": 350922.2,
       "stage": "OC"
     },
     "2026_ON_THU_FIRE_046": {
@@ -5513,7 +5527,7 @@
       "agency": "SK",
       "lat": 57.2978,
       "lon": -105.04723,
-      "size": 869,
+      "size": 1500,
       "stage": "OC"
     },
     "2026_SK_26LA-WAPA": {
@@ -5569,7 +5583,7 @@
       "agency": "SK",
       "lat": 55.65567,
       "lon": -106.544,
-      "size": 3,
+      "size": 12,
       "stage": "OC"
     },
     "2026_SK_26SR-CORSON": {
@@ -5772,6 +5786,6 @@
   "firms_last_watermark": "",
   "last_alert_slot": [
     "2026-07-15",
-    9
+    10
   ]
 }
