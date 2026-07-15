@@ -96,7 +96,31 @@ function extractCoordsFromString(text) {
   return null;
 }
 
+async function reverseGeocodeCityProvince(lat, lon) {
+  try {
+    const resp = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`,
+      { headers: { "User-Agent": "wildfire-alerts-canada/1.0 (personal project)" } }
+    );
+    if (!resp.ok) return null;
+    const addr = (await resp.json()).address || {};
+    let city = null;
+    for (const key of ["city", "town", "village", "hamlet", "municipality", "county"]) {
+      if (addr[key]) { city = addr[key]; break; }
+    }
+    if (!city) return null;
+    return addr.state ? `${city}, ${addr.state}` : city;
+  } catch (_) {
+    return null;
+  }
+}
+
 async function resolveLocation(text) {
+  // Native "share my location" messages often arrive as a second, separate
+  // text like "📍 Current Location: 123 Main St" - strip that label so
+  // geocoding sees a clean address instead of failing on the emoji/prefix.
+  text = text.replace(/^\s*📍\s*(?:current location:?)?\s*/i, "").replace(/\s*\n\s*/g, ", ").trim();
+
   const urlMatch = text.match(/https?:\/\/\S+/);
   if (urlMatch) {
     let expanded = urlMatch[0];
@@ -339,10 +363,11 @@ async function applyCommand(env, channel, rawText, fromNumber) {
   if (state.trip_mode) {
     reply += "\n\n" + (await formatFireSnapshot(coords.lat, coords.lon));
     if (state.contact_number) {
+      const cityProvince = await reverseGeocodeCityProvince(coords.lat, coords.lon);
       await sendSmsViaTwilio(
         env,
         state.contact_number,
-        `Location Update: ${text} (${coords.lat.toFixed(3)},${coords.lon.toFixed(3)})\n\nText UPDATE to ask for a location update.`
+        `Location Update: ${cityProvince || text} (${coords.lat.toFixed(3)},${coords.lon.toFixed(3)})\n\nText UPDATE to ask for a location update.`
       );
     }
   }
