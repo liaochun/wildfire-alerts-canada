@@ -177,12 +177,10 @@ async function formatFireSnapshot(lat, lon) {
   const lines = [];
   for (const f of fires) {
     const city = await reverseGeocodeCity(f.lat, f.lon);
-    lines.push(
-      `${city || `${f.lat.toFixed(2)},${f.lon.toFixed(2)}`} (${f.agency}, ${f.size} ha): ` +
-        `${stageName(f.stage)}, ${f.dist.toFixed(0)}km away`
-    );
+    const place = city ? `${city} (${f.lat.toFixed(2)},${f.lon.toFixed(2)})` : `${f.lat.toFixed(2)},${f.lon.toFixed(2)}`;
+    lines.push(`${place} (${f.agency}, ${f.size} ha): ${stageName(f.stage)}, ${f.dist.toFixed(0)}km away`);
   }
-  return `Current fires within 500km (closest ${fires.length}):\n\n` + lines.join("\n\n");
+  return `Current fires within 500km of last known location (closest ${fires.length}):\n\n` + lines.join("\n\n");
 }
 
 async function sendSmsViaTwilio(env, to, body) {

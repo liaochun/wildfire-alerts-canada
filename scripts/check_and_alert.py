@@ -283,7 +283,8 @@ def main():
                 if i > 0:
                     time.sleep(1)  # respect Nominatim's 1 req/sec usage policy
                 city = reverse_geocode_city(fire["lat"], fire["lon"])
-                near = city if city else f"{fire['lat']:.2f},{fire['lon']:.2f}"
+                coords = f"{fire['lat']:.2f},{fire['lon']:.2f}"
+                near = f"{city} ({coords})" if city else coords
                 sms_lines.append(
                     f"Fire near {near} ({fire.get('agency')}, {fire.get('size')} ha): "
                     f"{stage_name(prev_stage) if prev_stage else 'new'} -> {stage_name(new_stage)}, {dist:.0f}km away"
