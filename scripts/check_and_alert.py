@@ -322,16 +322,19 @@ def main():
                     f"{stage_name(prev_stage) if prev_stage else 'new'} -> {stage_name(new_stage)}, "
                     f"{dist:.0f}km {direction} of you"
                 )
+        footer = f"\n\nNext check: {next_slot_time_str(slot[1])}" if slot is not None else ""
         if sms_lines:
             header = f"Wildfire alert ({len(sms_lines)} fire{'s' if len(sms_lines) != 1 else ''} near you):\n\n"
-            footer = f"\n\nNext check: {next_slot_time_str(slot[1])}" if slot is not None else ""
-            send_sms(
-                env("TWILIO_ACCOUNT_SID", required=True),
-                env("TWILIO_AUTH_TOKEN", required=True),
-                env("TWILIO_FROM_NUMBER", required=True),
-                env("TWILIO_TO_NUMBER", required=True),
-                header + "\n\n".join(sms_lines) + footer,
-            )
+            body = header + "\n\n".join(sms_lines) + footer
+        else:
+            body = "No new fire activity within 500km of you as of now." + footer
+        send_sms(
+            env("TWILIO_ACCOUNT_SID", required=True),
+            env("TWILIO_AUTH_TOKEN", required=True),
+            env("TWILIO_FROM_NUMBER", required=True),
+            env("TWILIO_TO_NUMBER", required=True),
+            body,
+        )
 
     gmail_address = env("GMAIL_ADDRESS")
     if channels.get("email") and discord_lines and gmail_address:
