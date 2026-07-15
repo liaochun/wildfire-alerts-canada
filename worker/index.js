@@ -207,15 +207,25 @@ function helpText(state) {
     "TRIP START / TRIP STOP - road trip mode with periodic location reminders",
     "CONTACT <phone number> - also text that number your location whenever you update it during a trip (CONTACT OFF to stop)" +
       (state?.contact_number ? ` [currently: ${state.contact_number}]` : ""),
+    "WHERE / UPDATE - (registered contact only) ask the trip owner to send a location update",
     "OPTIONS - show this list",
     "Or just send a location: a Maps link, \"lat,lon\", or a city/town name",
   ].join("\n\n");
 }
 
-async function applyCommand(env, channel, rawText) {
+async function applyCommand(env, channel, rawText, fromNumber) {
   const text = (rawText || "").trim();
   const upper = text.toUpperCase();
   const state = await getState(env);
+
+  if (fromNumber && state.contact_number && fromNumber === state.contact_number && (upper === "WHERE" || upper === "UPDATE")) {
+    await sendSmsViaTwilio(
+      env,
+      env.TWILIO_TO_NUMBER,
+      "Your contact is asking for a location update - reply with FIRE: <your location> to send one."
+    );
+    return "Request sent - they'll get a text asking to update their location.";
+  }
 
   if (upper === "STATUS") {
     return statusReply(state);
@@ -408,7 +418,7 @@ export default {
         return await proxyToTalkyto(bodyText, env);
       }
 
-      const reply = await applyCommand(env, "sms", fireMatch[1]);
+      const reply = await applyCommand(env, "sms", fireMatch[1], params.From);
       const twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${escapeXml(reply)}</Message></Response>`;
       return new Response(twiml, { headers: { "Content-Type": "text/xml" } });
     }
