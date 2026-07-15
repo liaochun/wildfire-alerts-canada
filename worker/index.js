@@ -412,8 +412,17 @@ export default {
       // This number's Messaging Service also carries an existing business
       // texting integration (Talkyto). Only messages explicitly prefixed
       // with FIRE: are ours; everything else is passed through untouched
-      // so normal texting keeps working.
+      // so normal texting keeps working. Exception: your own number
+      // (TWILIO_TO_NUMBER) never needs the prefix at all, since every
+      // message from it is safe to assume is meant for this system.
       const fireMatch = (params.Body || "").match(/^\s*FIRE:?\s*(.*)$/is);
+      const isOwner = params.From && env.TWILIO_TO_NUMBER && params.From === env.TWILIO_TO_NUMBER;
+      if (isOwner) {
+        const commandText = fireMatch ? fireMatch[1] : params.Body || "";
+        const reply = await applyCommand(env, "sms", commandText, params.From);
+        const twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${escapeXml(reply)}</Message></Response>`;
+        return new Response(twiml, { headers: { "Content-Type": "text/xml" } });
+      }
       if (!fireMatch) {
         // Narrow exception: the registered contact can ask for a location
         // update with just the bare word, no FIRE: prefix needed - safe
