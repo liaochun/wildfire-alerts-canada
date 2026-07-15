@@ -415,6 +415,18 @@ export default {
       // so normal texting keeps working.
       const fireMatch = (params.Body || "").match(/^\s*FIRE:?\s*(.*)$/is);
       if (!fireMatch) {
+        // Narrow exception: the registered contact can ask for a location
+        // update with just the bare word, no FIRE: prefix needed - safe
+        // because it only applies to this exact sender and this exact phrase.
+        const bareUpper = (params.Body || "").trim().toUpperCase();
+        if ((bareUpper === "UPDATE" || bareUpper === "WHERE") && params.From) {
+          const state = await getState(env);
+          if (state.contact_number && params.From === state.contact_number) {
+            const reply = await applyCommand(env, "sms", bareUpper, params.From);
+            const twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${escapeXml(reply)}</Message></Response>`;
+            return new Response(twiml, { headers: { "Content-Type": "text/xml" } });
+          }
+        }
         return await proxyToTalkyto(bodyText, env);
       }
 
