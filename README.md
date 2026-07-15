@@ -8,7 +8,7 @@ A free, no-server wildfire tracking + alert system for Canada.
 - **Compute:** GitHub Actions, running every 15 minutes, all free. The workflow checks whether it's currently inside your 8am-midnight local window (in 45-minute slots) before doing any real work.
 - **Control plane:** a small Cloudflare Worker + KV store holds your current location, derived timezone, and per-channel on/off state. It's the shared brain that SMS, Discord, and email commands all read from and write to.
 - **Alerts:**
-  - **SMS** (via your existing Twilio number) - fires within 500km of your last texted location, only on a status transition into Being Held / Out of Control, or transition to Extinguished if it was previously Being Held/Out of Control.
+  - **SMS** (via your existing Twilio number) - fires within 500km of your last texted location, only on a status transition into Being Held / Out of Control, or transition to Extinguished if it was previously Being Held/Out of Control. Any fire that's within 150km and still Being Held/Out of Control gets a repeated `URGENT:` line every check cycle, not just on transition.
   - **Discord** - every fire status transition nationwide, plus new high-confidence FIRMS hotspot clusters.
   - **Email** - periodic digest via your Gmail (sent directly, no third-party email service).
 

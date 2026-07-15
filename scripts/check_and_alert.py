@@ -28,6 +28,8 @@ CWFIS_URL = "https://geoserver.cwfif.nrcan.gc.ca/geoserver/wfs"
 CWFIS_TYPENAME = "public:cwfif_national_activefires"
 FIRMS_BBOX = "-141,41.7,-52.6,83.1"  # west,south,east,north (Canada)
 ALERT_STAGES = {"BH", "OC"}
+ALERT_RADIUS_KM = 500  # transition-only alerts out to this range
+URGENT_RADIUS_KM = 150  # repeated every-cycle alerts inside this range
 
 
 def env(name, default=None, required=False):
@@ -305,23 +307,37 @@ def main():
             send_discord(env("DISCORD_WEBHOOK_URL"), line)
 
     if channels.get("sms") and loc_lat is not None and loc_lon is not None:
+        event_map = {fid: (prev_stage, new_stage) for fid, prev_stage, new_stage, _ in cwfis_events}
         sms_lines = []
-        for i, (fid, prev_stage, new_stage, fire) in enumerate(cwfis_events):
+        geocode_calls = 0
+        for fid, fire in cur_fires.items():
+            stage = fire["stage"]
+            is_transition = fid in event_map
+            if stage not in ALERT_STAGES and not is_transition:
+                continue  # not currently active and nothing changed this cycle
             if fire.get("lat") is None or fire.get("lon") is None:
                 continue
             dist = haversine_km(loc_lat, loc_lon, fire["lat"], fire["lon"])
-            if dist <= 500:
-                if i > 0:
-                    time.sleep(1)  # respect Nominatim's 1 req/sec usage policy
-                city = reverse_geocode_city(fire["lat"], fire["lon"])
-                coords = f"{fire['lat']:.2f},{fire['lon']:.2f}"
-                near = f"{city} ({coords})" if city else coords
-                direction = compass_direction(loc_lat, loc_lon, fire["lat"], fire["lon"])
-                sms_lines.append(
-                    f"Fire near {near} ({fire.get('agency')}, {fire.get('size')} ha): "
-                    f"{stage_name(prev_stage) if prev_stage else 'new'} -> {stage_name(new_stage)}, "
-                    f"{dist:.0f}km {direction} of you"
-                )
+            is_urgent = stage in ALERT_STAGES and dist <= URGENT_RADIUS_KM
+            if not is_urgent and not (is_transition and dist <= ALERT_RADIUS_KM):
+                continue
+            if geocode_calls > 0:
+                time.sleep(1)  # respect Nominatim's 1 req/sec usage policy
+            geocode_calls += 1
+            city = reverse_geocode_city(fire["lat"], fire["lon"])
+            coords = f"{fire['lat']:.2f},{fire['lon']:.2f}"
+            near = f"{city} ({coords})" if city else coords
+            direction = compass_direction(loc_lat, loc_lon, fire["lat"], fire["lon"])
+            if is_transition:
+                prev_stage, new_stage = event_map[fid]
+                change = f"{stage_name(prev_stage) if prev_stage else 'new'} -> {stage_name(new_stage)}"
+            else:
+                change = f"still {stage_name(stage)}"
+            prefix = "URGENT: " if is_urgent else ""
+            sms_lines.append(
+                f"{prefix}Fire near {near} ({fire.get('agency')}, {fire.get('size')} ha): "
+                f"{change}, {dist:.0f}km {direction} of you"
+            )
         footer = f"\n\nNext check: {next_slot_time_str(slot[1])}" if slot is not None else ""
         if sms_lines:
             header = f"Wildfire alert ({len(sms_lines)} fire{'s' if len(sms_lines) != 1 else ''} near you):\n\n"
