@@ -10,7 +10,12 @@ const DEFAULT_STATE = {
   location: { lat: null, lon: null, raw_input: null, updated_at: null },
   timezone: null,
   channels: { sms: true, discord: true, email: true },
+  trip_mode: false,
+  last_trip_reminder: null,
 };
+
+const CWFIS_URL = "https://geoserver.cwfif.nrcan.gc.ca/geoserver/wfs";
+const CWFIS_TYPENAME = "public:cwfif_national_activefires";
 
 const TZ_BANDS = [
   { upTo: -120, tz: "America/Vancouver" },
@@ -35,6 +40,8 @@ async function getState(env) {
     location: { ...DEFAULT_STATE.location, ...(parsed.location || {}) },
     timezone: parsed.timezone ?? null,
     channels: { ...DEFAULT_STATE.channels, ...(parsed.channels || {}) },
+    trip_mode: parsed.trip_mode ?? false,
+    last_trip_reminder: parsed.last_trip_reminder ?? null,
   };
 }
 
@@ -99,6 +106,92 @@ async function resolveLocation(text) {
   return null;
 }
 
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const r = 6371.0;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const p1 = toRad(lat1), p2 = toRad(lat2);
+  const dp = toRad(lat2 - lat1), dl = toRad(lon2 - lon1);
+  const a = Math.sin(dp / 2) ** 2 + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) ** 2;
+  return 2 * r * Math.asin(Math.sqrt(a));
+}
+
+function stageName(code) {
+  return { OC: "Out of Control", BH: "Being Held", UC: "Under Control", EX: "Extinguished" }[code] || code;
+}
+
+async function reverseGeocodeCity(lat, lon) {
+  try {
+    const resp = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`,
+      { headers: { "User-Agent": "wildfire-alerts-canada/1.0 (personal project)" } }
+    );
+    if (!resp.ok) return null;
+    const addr = (await resp.json()).address || {};
+    for (const key of ["city", "town", "village", "hamlet", "municipality", "county"]) {
+      if (addr[key]) return addr[key];
+    }
+  } catch (_) {
+    // fall through
+  }
+  return null;
+}
+
+async function fetchNearbyFires(lat, lon, radiusKm, maxResults) {
+  const nowIso = new Date().toISOString().slice(0, 19);
+  const cql = `record_start<=${nowIso}Z AND record_end>=${nowIso}Z`;
+  const resp = await fetch(
+    `${CWFIS_URL}?service=WFS&version=2.0.0&request=GetFeature&typeName=${CWFIS_TYPENAME}` +
+      `&outputFormat=application/json&CQL_FILTER=${encodeURIComponent(cql)}`
+  );
+  if (!resp.ok) return [];
+  const data = await resp.json();
+  const fires = [];
+  for (const feat of data.features || []) {
+    const p = feat.properties;
+    if (p.latitude == null || p.longitude == null) continue;
+    const dist = haversineKm(lat, lon, p.latitude, p.longitude);
+    if (dist <= radiusKm) {
+      fires.push({
+        fid: p.national_fire_id,
+        stage: p.stage_of_control_status || "EX",
+        size: p.fire_size,
+        agency: p.agency_code,
+        lat: p.latitude,
+        lon: p.longitude,
+        dist,
+      });
+    }
+  }
+  fires.sort((a, b) => a.dist - b.dist);
+  return fires.slice(0, maxResults);
+}
+
+async function formatFireSnapshot(lat, lon) {
+  const fires = await fetchNearbyFires(lat, lon, 500, 5);
+  if (!fires.length) return "No active fires within 500km of your current location right now.";
+  const lines = [];
+  for (const f of fires) {
+    const city = await reverseGeocodeCity(f.lat, f.lon);
+    lines.push(
+      `${city || `${f.lat.toFixed(2)},${f.lon.toFixed(2)}`} (${f.agency}, ${f.size} ha): ` +
+        `${stageName(f.stage)}, ${f.dist.toFixed(0)}km away`
+    );
+  }
+  return `Current fires within 500km (closest ${fires.length}):\n\n` + lines.join("\n\n");
+}
+
+async function sendSmsViaTwilio(env, body) {
+  if (!env.TWILIO_ACCOUNT_SID || !env.TWILIO_FROM_NUMBER || !env.TWILIO_TO_NUMBER) return;
+  await fetch(`https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_SID}/Messages.json`, {
+    method: "POST",
+    headers: {
+      Authorization: "Basic " + btoa(`${env.TWILIO_ACCOUNT_SID}:${env.TWILIO_AUTH_TOKEN}`),
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({ From: env.TWILIO_FROM_NUMBER, To: env.TWILIO_TO_NUMBER, Body: body }),
+  });
+}
+
 async function applyCommand(env, channel, rawText) {
   const text = (rawText || "").trim();
   const upper = text.toUpperCase();
@@ -132,15 +225,44 @@ async function applyCommand(env, channel, rawText) {
       : `Wildfire ${channel} alerts resumed.`;
   }
 
+  if (upper === "CHECK") {
+    if (state.location.lat == null) {
+      return "No location set yet - text a Maps link, \"lat,lon\", or a city/town name first.";
+    }
+    return await formatFireSnapshot(state.location.lat, state.location.lon);
+  }
+
+  if (upper === "TRIP START" || upper === "TRIP ON") {
+    state.trip_mode = true;
+    state.last_trip_reminder = null;
+    await setState(env, state);
+    return (
+      "Trip mode on. I'll ping you about once an hour (during your 8am-midnight window) to update your " +
+      "location. Text a new location any time for an immediate fire check - if you don't, I'll keep using " +
+      "your last known one. Text TRIP STOP to turn this off."
+    );
+  }
+
+  if (upper === "TRIP STOP" || upper === "TRIP OFF" || upper === "TRIP END") {
+    state.trip_mode = false;
+    await setState(env, state);
+    return "Trip mode off. Hourly location reminders stopped.";
+  }
+
   // Otherwise: treat as a location update.
   const coords = await resolveLocation(text);
   if (!coords) {
-    return `Couldn't figure out a location from "${text}". Send a Maps link, "lat,lon", or a city/town name - or PAUSE/RESUME/STATUS.`;
+    return `Couldn't figure out a location from "${text}". Send a Maps link, "lat,lon", or a city/town name - or PAUSE/RESUME/STATUS/CHECK/TRIP START/TRIP STOP.`;
   }
   state.location = { lat: coords.lat, lon: coords.lon, raw_input: text, updated_at: new Date().toISOString() };
   state.timezone = tzFromLon(coords.lon);
   await setState(env, state);
-  return `Location updated to ${coords.lat.toFixed(3)},${coords.lon.toFixed(3)} (timezone: ${state.timezone}). SMS alerts now scoped to 500km of here.`;
+
+  let reply = `Location updated to ${coords.lat.toFixed(3)},${coords.lon.toFixed(3)} (timezone: ${state.timezone}). SMS alerts now scoped to 500km of here.`;
+  if (state.trip_mode) {
+    reply += "\n\n" + (await formatFireSnapshot(coords.lat, coords.lon));
+  }
+  return reply;
 }
 
 async function verifyTwilioSignature(request, authToken, bodyParams) {
@@ -271,6 +393,26 @@ export default {
     }
 
     return new Response("Not found", { status: 404 });
+  },
+
+  async scheduled(event, env, ctx) {
+    const state = await getState(env);
+    if (!state.trip_mode || !state.channels.sms) return;
+    if (!state.timezone) return; // no location yet - nothing to remind about
+
+    const nowLocal = new Date(new Date().toLocaleString("en-US", { timeZone: state.timezone }));
+    const hour = nowLocal.getHours();
+    if (hour < 8) return; // outside the 8am-midnight window - platform silence hours
+
+    const hourKey = `${nowLocal.toISOString().slice(0, 10)}T${String(hour).padStart(2, "0")}`;
+    if (state.last_trip_reminder === hourKey) return; // already reminded this hour
+
+    await sendSmsViaTwilio(
+      env,
+      "Trip mode: reply FIRE: <your location> to update and get an immediate fire check, or I'll keep using your last known location. Text FIRE: TRIP STOP to turn this off."
+    );
+    state.last_trip_reminder = hourKey;
+    await setState(env, state);
   },
 };
 
