@@ -157,6 +157,21 @@ def haversine_km(lat1, lon1, lat2, lon2):
     return 2 * r * math.asin(math.sqrt(a))
 
 
+COMPASS_POINTS = [
+    "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+    "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW",
+]
+
+
+def compass_direction(lat1, lon1, lat2, lon2):
+    y = math.sin(math.radians(lon2 - lon1)) * math.cos(math.radians(lat2))
+    x = math.cos(math.radians(lat1)) * math.sin(math.radians(lat2)) - math.sin(
+        math.radians(lat1)
+    ) * math.cos(math.radians(lat2)) * math.cos(math.radians(lon2 - lon1))
+    bearing = (math.degrees(math.atan2(y, x)) + 360) % 360
+    return COMPASS_POINTS[round(bearing / 22.5) % 16]
+
+
 def compute_cwfis_transitions(prev_fires, cur_fires):
     events = []
     for fid, cur in cur_fires.items():
@@ -301,9 +316,11 @@ def main():
                 city = reverse_geocode_city(fire["lat"], fire["lon"])
                 coords = f"{fire['lat']:.2f},{fire['lon']:.2f}"
                 near = f"{city} ({coords})" if city else coords
+                direction = compass_direction(loc_lat, loc_lon, fire["lat"], fire["lon"])
                 sms_lines.append(
                     f"Fire near {near} ({fire.get('agency')}, {fire.get('size')} ha): "
-                    f"{stage_name(prev_stage) if prev_stage else 'new'} -> {stage_name(new_stage)}, {dist:.0f}km away"
+                    f"{stage_name(prev_stage) if prev_stage else 'new'} -> {stage_name(new_stage)}, "
+                    f"{dist:.0f}km {direction} of you"
                 )
         if sms_lines:
             header = f"Wildfire alert ({len(sms_lines)} fire{'s' if len(sms_lines) != 1 else ''} near you):\n\n"

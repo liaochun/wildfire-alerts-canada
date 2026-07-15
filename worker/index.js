@@ -13,6 +13,7 @@ const DEFAULT_STATE = {
   trip_mode: false,
   last_trip_reminder: null,
   contact_number: null,
+  contact_fire_alerts: false,
 };
 
 const CWFIS_URL = "https://geoserver.cwfif.nrcan.gc.ca/geoserver/wfs";
@@ -64,6 +65,7 @@ async function getState(env) {
     trip_mode: parsed.trip_mode ?? false,
     last_trip_reminder: parsed.last_trip_reminder ?? null,
     contact_number: parsed.contact_number ?? null,
+    contact_fire_alerts: parsed.contact_fire_alerts ?? false,
   };
 }
 
@@ -94,25 +96,6 @@ function extractCoordsFromString(text) {
   const lon = parseFloat(m[2]);
   if (lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) return { lat, lon };
   return null;
-}
-
-async function reverseGeocodeCityProvince(lat, lon) {
-  try {
-    const resp = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`,
-      { headers: { "User-Agent": "wildfire-alerts-canada/1.0 (personal project)" } }
-    );
-    if (!resp.ok) return null;
-    const addr = (await resp.json()).address || {};
-    let city = null;
-    for (const key of ["city", "town", "village", "hamlet", "municipality", "county"]) {
-      if (addr[key]) { city = addr[key]; break; }
-    }
-    if (!city) return null;
-    return addr.state ? `${city}, ${addr.state}` : city;
-  } catch (_) {
-    return null;
-  }
 }
 
 async function resolveLocation(text) {
@@ -162,6 +145,22 @@ function haversineKm(lat1, lon1, lat2, lon2) {
   const dp = toRad(lat2 - lat1), dl = toRad(lon2 - lon1);
   const a = Math.sin(dp / 2) ** 2 + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) ** 2;
   return 2 * r * Math.asin(Math.sqrt(a));
+}
+
+const COMPASS_POINTS = [
+  "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+  "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW",
+];
+
+function compassDirection(lat1, lon1, lat2, lon2) {
+  const toRad = (d) => (d * Math.PI) / 180;
+  const toDeg = (r) => (r * 180) / Math.PI;
+  const y = Math.sin(toRad(lon2 - lon1)) * Math.cos(toRad(lat2));
+  const x =
+    Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
+    Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(toRad(lon2 - lon1));
+  const bearing = (toDeg(Math.atan2(y, x)) + 360) % 360;
+  return COMPASS_POINTS[Math.round(bearing / 22.5) % 16];
 }
 
 function stageName(code) {
@@ -226,7 +225,8 @@ async function formatFireSnapshot(lat, lon) {
   for (const f of fires) {
     const city = await reverseGeocodeCity(f.lat, f.lon);
     const place = city ? `${city} (${f.lat.toFixed(2)},${f.lon.toFixed(2)})` : `${f.lat.toFixed(2)},${f.lon.toFixed(2)}`;
-    lines.push(`${place} (${f.agency}, ${f.size} ha): ${stageName(f.stage)}, ${f.dist.toFixed(0)}km away`);
+    const dir = compassDirection(lat, lon, f.lat, f.lon);
+    lines.push(`${place} (${f.agency}, ${f.size} ha): ${stageName(f.stage)}, ${f.dist.toFixed(0)}km ${dir} of you`);
   }
   return `Current fires within 500km of ${originLabel} (closest ${fires.length}):\n\n` + lines.join("\n\n");
 }
@@ -255,6 +255,8 @@ function helpText(state) {
     "TRIP START / TRIP STOP - road trip mode with periodic location reminders",
     "CONTACT <phone number> - also text that number your location whenever you update it during a trip (CONTACT OFF to stop)" +
       (state?.contact_number ? ` [currently: ${state.contact_number}]` : ""),
+    "CONTACT ALERTS ON / CONTACT ALERTS OFF - also send the contact the fire-risk snapshot" +
+      (state ? ` [currently: ${state.contact_fire_alerts ? "on" : "off"}]` : ""),
     "WHERE / UPDATE - (registered contact only) ask the trip owner to send a location update",
     "OPTIONS - show this list",
     "Or just send a location: a Maps link, \"lat,lon\", or a city/town name",
@@ -331,6 +333,14 @@ async function applyCommand(env, channel, rawText, fromNumber) {
     return "Trip mode off. Location reminders stopped.";
   }
 
+  if (upper === "CONTACT ALERTS ON" || upper === "CONTACT ALERTS OFF") {
+    state.contact_fire_alerts = upper === "CONTACT ALERTS ON";
+    await setState(env, state);
+    return state.contact_fire_alerts
+      ? "Contact will now also get the fire-risk snapshot along with each location update."
+      : "Contact will only get the plain location update now (no fire-risk snapshot).";
+  }
+
   if (upper === "CONTACT" || upper.startsWith("CONTACT ")) {
     const arg = text.slice("CONTACT".length).trim();
     if (!arg || arg.toUpperCase() === "OFF" || arg.toUpperCase() === "STOP") {
@@ -361,14 +371,14 @@ async function applyCommand(env, channel, rawText, fromNumber) {
 
   let reply = `Location updated to ${coords.lat.toFixed(3)},${coords.lon.toFixed(3)} (timezone: ${state.timezone}). SMS alerts now scoped to 500km of here.\n\nNext check: ${nextSlotTimeStr(state.timezone)}`;
   if (state.trip_mode) {
-    reply += "\n\n" + (await formatFireSnapshot(coords.lat, coords.lon));
+    const snapshot = await formatFireSnapshot(coords.lat, coords.lon);
+    reply += "\n\n" + snapshot;
     if (state.contact_number) {
-      const cityProvince = await reverseGeocodeCityProvince(coords.lat, coords.lon);
-      await sendSmsViaTwilio(
-        env,
-        state.contact_number,
-        `Location Update: ${cityProvince || text} (${coords.lat.toFixed(3)},${coords.lon.toFixed(3)})\n\nText UPDATE to ask for a location update.`
-      );
+      let contactMsg = `Location Update: ${text} (${coords.lat.toFixed(3)},${coords.lon.toFixed(3)})\n\nText UPDATE to ask for a location update.`;
+      if (state.contact_fire_alerts) {
+        contactMsg += "\n\n" + snapshot;
+      }
+      await sendSmsViaTwilio(env, state.contact_number, contactMsg);
     }
   }
   return reply;
