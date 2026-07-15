@@ -288,7 +288,7 @@ async function applyCommand(env, channel, rawText) {
     if (!PHONE_RE.test(digits)) {
       return `That doesn't look like a phone number: "${arg}". Try e.g. CONTACT +15551234567.`;
     }
-    state.contact_number = digits.startsWith("+") ? digits : `+1${digits}`;
+    state.contact_number = digits.startsWith("+") ? digits : digits.length === 10 ? `+1${digits}` : `+${digits}`;
     await setState(env, state);
     return `Contact set to ${state.contact_number}. They'll get a text with your location every time you update it while trip mode is on.`;
   }
