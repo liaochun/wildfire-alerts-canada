@@ -395,7 +395,8 @@ async function applyCommand(env, channel, rawText, fromNumber) {
     if (state.contact_number) {
       const cityProvince = await reverseGeocodeCityProvince(coords.lat, coords.lon);
       const label = cityProvince ? `${cityProvince} (${text})` : text;
-      let contactMsg = `Location Update: ${label} (${coords.lat.toFixed(3)},${coords.lon.toFixed(3)})\n\nText UPDATE to ask for a location update.`;
+      const mapsLink = `https://www.google.com/maps?q=${coords.lat},${coords.lon}`;
+      let contactMsg = `Location Update: ${label} (${coords.lat.toFixed(3)},${coords.lon.toFixed(3)})\n${mapsLink}\n\nText UPDATE to ask for a location update.`;
       if (state.contact_fire_alerts) {
         contactMsg += "\n\n" + snapshot;
       }
