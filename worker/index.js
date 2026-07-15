@@ -321,7 +321,7 @@ async function applyCommand(env, channel, rawText, fromNumber) {
     state.last_trip_reminder = null;
     await setState(env, state);
     return (
-      "Trip mode on. I'll ping you about every 1.5 hours (during your 8am-midnight window) to update your " +
+      "Trip mode on. I'll ping you about every 2 hours (during your 8am-midnight window) to update your " +
       "location. Text a new location any time for an immediate fire check - if you don't, I'll keep using " +
       "your last known one. Text TRIP STOP to turn this off."
     );

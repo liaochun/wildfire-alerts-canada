@@ -3,9 +3,9 @@
 
 Run every 20 minutes by GitHub Actions (skipping the UTC hours where no
 Canadian timezone's window can be open). Self-gates on the 8am-midnight
-local, 45-minute-slot window before doing any real work, tracking the
-last handled slot in state so it fires correctly regardless of exact
-alignment between the tick interval and slot boundaries (see main()).
+local, hourly-slot window before doing any real work, tracking the last
+handled slot in state so it fires correctly regardless of exact alignment
+between the tick interval and slot boundaries (see main()).
 """
 import json
 import math
@@ -60,31 +60,31 @@ def get_control_state(worker_url, shared_secret):
 
 
 def current_slot(tz_name):
-    """Return (date_str, slot_index) for the current 45-min-from-8am slot in
-    tz_name's local time, or None if outside the 8am-midnight window.
+    """Return (date_str, slot_index) for the current hourly slot (8am-midnight)
+    in tz_name's local time, or None if outside the window.
 
-    Slot boundaries are always on a quarter-hour mark (8:00, 8:45, 9:30,
-    10:15, 11:00, ...), but the workflow tick interval need not align
-    exactly with them - the caller compares this against the last slot it
-    handled and fires whenever the tick has crossed into a new one, which
-    works at any tick interval instead of requiring an exact match.
+    Slot boundaries are on the hour (8:00, 9:00, 10:00, ...), but the
+    workflow tick interval need not align exactly with them - the caller
+    compares this against the last slot it handled and fires whenever the
+    tick has crossed into a new one, which works at any tick interval
+    instead of requiring an exact match.
     """
     if not tz_name:
         return None
     now_local = datetime.now(ZoneInfo(tz_name))
     minutes_since_8am = now_local.hour * 60 + now_local.minute - 8 * 60
-    if not (0 <= minutes_since_8am <= 23 * 60 + 45 - 8 * 60):
+    if not (0 <= minutes_since_8am <= 15 * 60):
         return None
-    return now_local.date().isoformat(), minutes_since_8am // 45
+    return now_local.date().isoformat(), minutes_since_8am // 60
 
 
 def next_slot_time_str(slot_index):
-    """Human-friendly clock time of the next scheduled 45-min slot."""
+    """Human-friendly clock time of the next scheduled hourly slot."""
     next_index = slot_index + 1
-    wraps_to_tomorrow = next_index > 21
+    wraps_to_tomorrow = next_index > 15
     if wraps_to_tomorrow:
         next_index = 0
-    total_minutes = 8 * 60 + next_index * 45
+    total_minutes = 8 * 60 + next_index * 60
     hour = (total_minutes // 60) % 24
     minute = total_minutes % 60
     suffix = "am" if hour < 12 else "pm"
