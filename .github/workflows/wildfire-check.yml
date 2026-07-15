@@ -2,10 +2,16 @@ name: Wildfire check and alert
 
 on:
   schedule:
-    # Every 15 minutes, all day, every day (UTC). The script itself gates
-    # on whether this tick falls inside the user's 8am-midnight local
-    # window (45-minute slots) before doing any real work.
-    - cron: "*/15 * * * *"
+    # Every 20 minutes, skipping 08:00-10:59 UTC - the one stretch of the
+    # day where no Canadian timezone's 8am-midnight local window can be
+    # open. Keeps this comfortably under the 2,000 free Actions
+    # minutes/month for a private repo (GitHub bills a minimum of 1
+    # minute per run regardless of actual duration, so run *count* is
+    # what matters, not run speed). The script tracks which 45-minute
+    # slot it last alerted in (state/fires_seen.json) and fires when the
+    # current tick has crossed into a new slot, so it works correctly at
+    # any tick interval instead of requiring an exact alignment.
+    - cron: "*/20 0-7,11-23 * * *"
   workflow_dispatch: {}
 
 permissions:
@@ -20,6 +26,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
 
       - run: pip install -r requirements.txt
 

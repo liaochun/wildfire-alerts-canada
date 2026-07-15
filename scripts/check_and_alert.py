@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Fetch Canadian wildfire data and send alerts via SMS/Discord/email.
 
-Run every 15 minutes by GitHub Actions. Self-gates on the 8am-midnight
-local, 45-minute-slot window before doing any real work (see main()).
+Run every 20 minutes by GitHub Actions (skipping the UTC hours where no
+Canadian timezone's window can be open). Self-gates on the 8am-midnight
+local, 45-minute-slot window before doing any real work, tracking the
+last handled slot in state so it fires correctly regardless of exact
+alignment between the tick interval and slot boundaries (see main()).
 """
 import json
 import math
@@ -37,7 +40,7 @@ def env(name, default=None, required=False):
 def load_state():
     if STATE_PATH.exists():
         return json.loads(STATE_PATH.read_text())
-    return {"cwfis": {}, "firms_last_watermark": ""}
+    return {"cwfis": {}, "firms_last_watermark": "", "last_alert_slot": None}
 
 
 def save_state(state):
@@ -55,19 +58,23 @@ def get_control_state(worker_url, shared_secret):
     return resp.json()
 
 
-def in_alert_window(tz_name):
-    """8am-midnight local, on the 45-min-from-8am slot pattern.
+def current_slot(tz_name):
+    """Return (date_str, slot_index) for the current 45-min-from-8am slot in
+    tz_name's local time, or None if outside the 8am-midnight window.
 
-    Slots are always on a quarter-hour boundary (8:00, 8:45, 9:30, 10:15,
-    11:00, ...), so a workflow tick every 15 UTC minutes is guaranteed to
-    land on one, since every Canadian UTC offset (including
-    Newfoundland's -3:30) is itself a multiple of 15 minutes.
+    Slot boundaries are always on a quarter-hour mark (8:00, 8:45, 9:30,
+    10:15, 11:00, ...), but the workflow tick interval need not align
+    exactly with them - the caller compares this against the last slot it
+    handled and fires whenever the tick has crossed into a new one, which
+    works at any tick interval instead of requiring an exact match.
     """
     if not tz_name:
-        return True  # no location texted yet - don't block alerts
+        return None
     now_local = datetime.now(ZoneInfo(tz_name))
     minutes_since_8am = now_local.hour * 60 + now_local.minute - 8 * 60
-    return 0 <= minutes_since_8am <= 23 * 60 + 45 - 8 * 60 and minutes_since_8am % 45 == 0
+    if not (0 <= minutes_since_8am <= 23 * 60 + 45 - 8 * 60):
+        return None
+    return now_local.date().isoformat(), minutes_since_8am // 45
 
 
 def fetch_cwfis():
@@ -208,15 +215,25 @@ def main():
     control = get_control_state(worker_url, shared_secret)
     tz_name = control.get("timezone")
 
-    if not in_alert_window(tz_name):
-        print(f"Outside alert window (tz={tz_name}) - skipping.")
-        return
+    state = load_state()
+
+    if tz_name:
+        slot = current_slot(tz_name)
+        if slot is None:
+            print(f"Outside alert window (tz={tz_name}) - skipping.")
+            return
+        last_slot = state.get("last_alert_slot")
+        if last_slot is not None and tuple(last_slot) == slot:
+            print(f"Already handled slot {slot} (tz={tz_name}) - skipping.")
+            return
+        state["last_alert_slot"] = list(slot)
+    # else: no location texted yet, so no timezone/window to gate on -
+    # run unconditionally (national Discord/email feed still useful).
 
     channels = control.get("channels", {"sms": True, "discord": True, "email": True})
     location = control.get("location") or {}
     loc_lat, loc_lon = location.get("lat"), location.get("lon")
 
-    state = load_state()
     prev_fires = state.get("cwfis", {})
 
     cur_fires = fetch_cwfis()
