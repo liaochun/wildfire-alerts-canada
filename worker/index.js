@@ -11,11 +11,36 @@ const DEFAULT_STATE = {
   timezone: null,
   channels: { sms: true, discord: true, email: true },
   trip_mode: false,
-  last_trip_reminder: null,
+  last_trip_reminder: null, // [dateStr, slotIndex] | null
+  trip_reminder_interval_minutes: 120,
   contact_number: null,
   contact_fire_alerts: false,
-  fire_alert: { cwfis: {}, last_alert_slot: null },
+  fire_alert: { cwfis: {}, last_alert_slot: null, interval_minutes: 60 },
 };
+
+// Both cadences are logic-layer settings on top of a single fixed 15-minute
+// Cron Trigger (see wrangler.toml) - only the underlying tick is deploy-time
+// config. Any interval >= 15 works via this slot math without touching the
+// tick; going below 15 would need the tick itself moved (a redeploy).
+const MIN_INTERVAL_MINUTES = 15;
+
+function formatInterval(minutes) {
+  if (minutes % 60 === 0) {
+    const h = minutes / 60;
+    return `${h} hour${h !== 1 ? "s" : ""}`;
+  }
+  return `${minutes} min`;
+}
+
+const INTERVAL_RE = /^(\d+)\s*(MIN|MINS|MINUTE|MINUTES|H|HR|HRS|HOUR|HOURS)$/i;
+
+function parseIntervalMinutes(arg) {
+  const m = arg.trim().match(INTERVAL_RE);
+  if (!m) return null;
+  const n = parseInt(m[1], 10);
+  const isHours = m[2].toUpperCase().startsWith("H");
+  return isHours ? n * 60 : n;
+}
 
 const CWFIS_URL = "https://geoserver.cwfif.nrcan.gc.ca/geoserver/wfs";
 const CWFIS_TYPENAME = "public:cwfif_national_activefires";
@@ -71,6 +96,7 @@ async function getState(env) {
     channels: { ...DEFAULT_STATE.channels, ...(parsed.channels || {}) },
     trip_mode: parsed.trip_mode ?? false,
     last_trip_reminder: parsed.last_trip_reminder ?? null,
+    trip_reminder_interval_minutes: parsed.trip_reminder_interval_minutes ?? DEFAULT_STATE.trip_reminder_interval_minutes,
     contact_number: parsed.contact_number ?? null,
     contact_fire_alerts: parsed.contact_fire_alerts ?? false,
     fire_alert: {
@@ -85,36 +111,31 @@ async function setState(env, state) {
 }
 
 // Next-check ETA helpers for STATUS. Kept sync (no network calls) so
-// statusReply() doesn't need to become async.
-function nextFireCheckEta(state) {
-  if (!state.timezone) return "location not set";
-  const nowLocal = new Date(new Date().toLocaleString("en-US", { timeZone: state.timezone }));
+// statusReply() doesn't need to become async. Both the fire-check and
+// trip-reminder engines share this same 8am-midnight window / interval-slot
+// design, generalized to whatever interval each is currently configured to.
+const WINDOW_MINUTES = 16 * 60; // 8am-midnight
+
+function nextIntervalEta(timezone, intervalMinutes, lastSlot) {
+  if (!timezone) return "location not set";
+  const nowLocal = new Date(new Date().toLocaleString("en-US", { timeZone: timezone }));
   const minutesSince8am = nowLocal.getHours() * 60 + nowLocal.getMinutes() - 8 * 60;
   if (minutesSince8am < 0) return "8:00am (window opens then)";
-  if (minutesSince8am >= 16 * 60) return "8:00am tomorrow (window closed for today)";
-  const slotIndex = Math.floor(minutesSince8am / 60);
+  if (minutesSince8am >= WINDOW_MINUTES) return "8:00am tomorrow (window closed for today)";
+  const slotIndex = Math.floor(minutesSince8am / intervalMinutes);
   const dateStr = nowLocal.toISOString().slice(0, 10);
-  const lastSlot = state.fire_alert.last_alert_slot;
   const alreadyHandled = lastSlot && lastSlot[0] === dateStr && lastSlot[1] === slotIndex;
-  if (!alreadyHandled) return "within 15 min (this hour not yet checked)";
-  return `${nextHourlySlotClock(slotIndex)} (next hourly slot)`;
+  if (!alreadyHandled) return "within 15 min (this slot not yet checked)";
+  return `${nextIntervalSlotClock(slotIndex, intervalMinutes)} (next slot)`;
+}
+
+function nextFireCheckEta(state) {
+  return nextIntervalEta(state.timezone, state.fire_alert.interval_minutes, state.fire_alert.last_alert_slot);
 }
 
 function nextTripReminderEta(state) {
   if (!state.trip_mode) return "trip mode off";
-  if (!state.timezone) return "location not set";
-  const now = new Date();
-  let next = new Date(Date.UTC(
-    now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),
-    now.getUTCHours() - (now.getUTCHours() % 2), 0, 0, 0
-  ));
-  if (next <= now) next = new Date(next.getTime() + 2 * 60 * 60 * 1000);
-  for (let i = 0; i < 12; i++) {
-    const localHour = new Date(next.toLocaleString("en-US", { timeZone: state.timezone })).getHours();
-    if (localHour >= 8) break;
-    next = new Date(next.getTime() + 2 * 60 * 60 * 1000);
-  }
-  return next.toLocaleString("en-US", { timeZone: state.timezone, hour: "numeric", minute: "2-digit", hour12: true });
+  return nextIntervalEta(state.timezone, state.trip_reminder_interval_minutes, state.last_trip_reminder);
 }
 
 function statusReply(state) {
@@ -126,9 +147,9 @@ function statusReply(state) {
     `SMS: ${c.sms ? "on" : "paused"} | Discord: ${c.discord ? "on" : "paused"} | Email: ${c.email ? "on" : "paused"}`,
     `Location: ${loc}`,
     `Timezone: ${state.timezone || "not set"}`,
-    `Next fire check: ${nextFireCheckEta(state)}`,
+    `Fire check: every ${formatInterval(state.fire_alert.interval_minutes)} | Next: ${nextFireCheckEta(state)}`,
     `Trip mode: ${state.trip_mode ? "on" : "off"}`,
-    `Next trip reminder: ${nextTripReminderEta(state)}`,
+    `Trip reminder: every ${formatInterval(state.trip_reminder_interval_minutes)} | Next: ${nextTripReminderEta(state)}`,
     `Contact: ${state.contact_number || "not set"}`,
     `Contact fire alerts: ${state.contact_fire_alerts ? "on" : "off"}`,
   ].join("\n\n");
@@ -280,27 +301,31 @@ async function formatFireSnapshot(lat, lon) {
   return `Current fires within 500km of ${originLabel} (closest ${fires.length}):\n\n` + lines.join("\n\n");
 }
 
-// Separate hourly-slot clock helper for the fire-check engine below. This is
-// intentionally NOT shared with formatSlotClock/nextSlotTimeStr above, which
-// use a different 45-minute-slot design for trip reminders/location replies -
-// reusing those would break that feature.
-function nextHourlySlotClock(slotIndex) {
-  const nextIndex = slotIndex + 1;
-  if (nextIndex > 15) return "8:00am tomorrow"; // wraps past the last slot (11pm-midnight)
-  const hour24 = 8 + nextIndex; // slot 0 starts at 8am, so slot n starts at 8+n
+// Separate interval-slot clock helper for the fire-check/trip-reminder
+// engines below. This is intentionally NOT shared with
+// formatSlotClock/nextSlotTimeStr above, which use a different fixed
+// 45-minute-slot design for the plain location-update reply - reusing those
+// would break that feature.
+function nextIntervalSlotClock(slotIndex, intervalMinutes) {
+  const nextStartMinutes = (slotIndex + 1) * intervalMinutes;
+  if (nextStartMinutes >= WINDOW_MINUTES) return "8:00am tomorrow"; // wraps past window close (midnight)
+  const totalMinutes = 8 * 60 + nextStartMinutes; // slot 0 starts at 8am
+  const hour24 = Math.floor(totalMinutes / 60) % 24;
+  const minute = totalMinutes % 60;
   const suffix = hour24 < 12 ? "am" : "pm";
   const hour12 = hour24 % 12 || 12;
-  return `${hour12}:00${suffix}`;
+  return `${hour12}:${String(minute).padStart(2, "0")}${suffix}`;
 }
 
 async function runFireCheckSms(env) {
   const state = await getState(env);
   if (!state.channels.sms || state.location.lat == null || state.location.lon == null) return;
 
+  const intervalMinutes = state.fire_alert.interval_minutes;
   const nowLocal = new Date(new Date().toLocaleString("en-US", { timeZone: state.timezone }));
   const minutesSince8am = nowLocal.getHours() * 60 + nowLocal.getMinutes() - 8 * 60;
-  if (minutesSince8am < 0 || minutesSince8am >= 16 * 60) return; // outside the 8am-midnight window
-  const slotIndex = Math.floor(minutesSince8am / 60);
+  if (minutesSince8am < 0 || minutesSince8am >= WINDOW_MINUTES) return; // outside the 8am-midnight window
+  const slotIndex = Math.floor(minutesSince8am / intervalMinutes);
   const dateStr = nowLocal.toISOString().slice(0, 10);
 
   const lastSlot = state.fire_alert.last_alert_slot;
@@ -378,7 +403,7 @@ async function runFireCheckSms(env) {
     );
   }
 
-  const nextSlotClock = nextHourlySlotClock(slotIndex);
+  const nextSlotClock = nextIntervalSlotClock(slotIndex, intervalMinutes);
   const footer = `\n\nNext check: ${nextSlotClock}`;
   const locationLine = `Tracking: ${ownLabel}\n\n`;
   let body;
@@ -393,7 +418,8 @@ async function runFireCheckSms(env) {
   }
   await sendSmsViaTwilio(env, env.TWILIO_TO_NUMBER, body);
 
-  if (slotIndex === 15) {
+  const lastSlotIndex = Math.floor((WINDOW_MINUTES - 1) / intervalMinutes);
+  if (slotIndex === lastSlotIndex) {
     const eodActive = [];
     for (const [, fire] of Object.entries(curFires)) {
       const stage = fire.stage;
@@ -415,7 +441,34 @@ async function runFireCheckSms(env) {
     await sendSmsViaTwilio(env, env.TWILIO_TO_NUMBER, eodBody);
   }
 
-  state.fire_alert = { cwfis: curFires, last_alert_slot: [dateStr, slotIndex] };
+  state.fire_alert = { cwfis: curFires, last_alert_slot: [dateStr, slotIndex], interval_minutes: intervalMinutes };
+  await setState(env, state);
+}
+
+// Same interval-slot design as runFireCheckSms above, sharing the single
+// 15-min Cron Trigger instead of a separate coarser cron - lets this
+// cadence go as fine as 15 min without a redeploy (only going below 15 min
+// would need the tick itself moved).
+async function runTripReminderCheck(env) {
+  const state = await getState(env);
+  if (!state.trip_mode || !state.channels.sms || !state.timezone) return;
+
+  const intervalMinutes = state.trip_reminder_interval_minutes;
+  const nowLocal = new Date(new Date().toLocaleString("en-US", { timeZone: state.timezone }));
+  const minutesSince8am = nowLocal.getHours() * 60 + nowLocal.getMinutes() - 8 * 60;
+  if (minutesSince8am < 0 || minutesSince8am >= WINDOW_MINUTES) return; // outside the 8am-midnight window
+  const slotIndex = Math.floor(minutesSince8am / intervalMinutes);
+  const dateStr = nowLocal.toISOString().slice(0, 10);
+
+  const lastSlot = state.last_trip_reminder;
+  if (lastSlot && lastSlot[0] === dateStr && lastSlot[1] === slotIndex) return; // already reminded this slot
+
+  await sendSmsViaTwilio(
+    env,
+    env.TWILIO_TO_NUMBER,
+    "Trip mode: reply FIRE: <your location> to update and get an immediate fire check, or I'll keep using your last known location. Text FIRE: TRIP STOP to turn this off."
+  );
+  state.last_trip_reminder = [dateStr, slotIndex];
   await setState(env, state);
 }
 
@@ -441,6 +494,10 @@ function helpText(state) {
     "PAUSE / PAUSE ALL - pause alerts (this platform / everywhere)",
     "RESUME / RESUME ALL - resume alerts",
     "TRIP START / TRIP STOP - road trip mode with periodic location reminders",
+    "CHECK EVERY <n> MIN/HOURS - set fire-check cadence (min 15 min)" +
+      (state ? ` [currently: every ${formatInterval(state.fire_alert.interval_minutes)}]` : ""),
+    "TRIP REMINDER EVERY <n> MIN/HOURS - set trip-mode location-reminder cadence (min 15 min)" +
+      (state ? ` [currently: every ${formatInterval(state.trip_reminder_interval_minutes)}]` : ""),
     "CONTACT <phone number> - also text that number your location whenever you update it during a trip (CONTACT OFF to stop)" +
       (state?.contact_number ? ` [currently: ${state.contact_number}]` : ""),
     "CONTACT ALERTS ON / CONTACT ALERTS OFF - also send the contact the fire-risk snapshot" +
@@ -504,14 +561,42 @@ async function applyCommand(env, channel, rawText, fromNumber) {
     return await formatFireSnapshot(state.location.lat, state.location.lon);
   }
 
+  if (upper === "CHECK EVERY" || upper.startsWith("CHECK EVERY ")) {
+    const arg = text.slice("CHECK EVERY".length).trim();
+    const minutes = parseIntervalMinutes(arg);
+    if (minutes == null) {
+      return `Reply with e.g. CHECK EVERY 30 MIN or CHECK EVERY 2 HOURS. Currently: every ${formatInterval(state.fire_alert.interval_minutes)}.`;
+    }
+    if (minutes < MIN_INTERVAL_MINUTES) {
+      return `Fire checks can't run more often than every ${MIN_INTERVAL_MINUTES} min (that's how often the underlying check itself runs) - try ${MIN_INTERVAL_MINUTES} or higher.`;
+    }
+    state.fire_alert.interval_minutes = minutes;
+    await setState(env, state);
+    return `Fire check cadence set to every ${formatInterval(minutes)}. Next check: ${nextFireCheckEta(state)}`;
+  }
+
+  if (upper === "TRIP REMINDER EVERY" || upper.startsWith("TRIP REMINDER EVERY ")) {
+    const arg = text.slice("TRIP REMINDER EVERY".length).trim();
+    const minutes = parseIntervalMinutes(arg);
+    if (minutes == null) {
+      return `Reply with e.g. TRIP REMINDER EVERY 30 MIN or TRIP REMINDER EVERY 2 HOURS. Currently: every ${formatInterval(state.trip_reminder_interval_minutes)}.`;
+    }
+    if (minutes < MIN_INTERVAL_MINUTES) {
+      return `Trip reminders can't run more often than every ${MIN_INTERVAL_MINUTES} min (that's how often the underlying check itself runs) - try ${MIN_INTERVAL_MINUTES} or higher.`;
+    }
+    state.trip_reminder_interval_minutes = minutes;
+    await setState(env, state);
+    return `Trip reminder cadence set to every ${formatInterval(minutes)}. Next reminder: ${nextTripReminderEta(state)}`;
+  }
+
   if (upper === "TRIP START" || upper === "TRIP ON") {
     state.trip_mode = true;
     state.last_trip_reminder = null;
     await setState(env, state);
     return (
-      "Trip mode on. I'll ping you about every 2 hours (during your 8am-midnight window) to update your " +
-      "location. Text a new location any time for an immediate fire check - if you don't, I'll keep using " +
-      "your last known one. Text TRIP STOP to turn this off."
+      `Trip mode on. I'll ping you about every ${formatInterval(state.trip_reminder_interval_minutes)} (during your ` +
+      "8am-midnight window) to update your location. Text a new location any time for an immediate fire check - " +
+      "if you don't, I'll keep using your last known one. Text TRIP STOP to turn this off."
     );
   }
 
@@ -727,30 +812,10 @@ export default {
   },
 
   async scheduled(event, env, ctx) {
-    if (event.cron === "*/15 * * * *") {
-      await runFireCheckSms(env);
-      return;
-    }
-    if (event.cron !== "0 */2 * * *") return; // unrecognized cron - no-op
-
-    const state = await getState(env);
-    if (!state.trip_mode || !state.channels.sms) return;
-    if (!state.timezone) return; // no location yet - nothing to remind about
-
-    const nowLocal = new Date(new Date().toLocaleString("en-US", { timeZone: state.timezone }));
-    const hour = nowLocal.getHours();
-    if (hour < 8) return; // outside the 8am-midnight window - platform silence hours
-
-    const slotKey = `${nowLocal.toISOString().slice(0, 10)}T${String(hour).padStart(2, "0")}:${String(nowLocal.getMinutes()).padStart(2, "0")}`;
-    if (state.last_trip_reminder === slotKey) return; // already reminded this slot
-
-    await sendSmsViaTwilio(
-      env,
-      env.TWILIO_TO_NUMBER,
-      "Trip mode: reply FIRE: <your location> to update and get an immediate fire check, or I'll keep using your last known location. Text FIRE: TRIP STOP to turn this off."
-    );
-    state.last_trip_reminder = slotKey;
-    await setState(env, state);
+    // Both engines share this one tick (see wrangler.toml) - each has its
+    // own interval-slot dedupe so neither spams every 15 minutes.
+    await runFireCheckSms(env);
+    await runTripReminderCheck(env);
   },
 };
 

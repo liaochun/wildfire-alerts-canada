@@ -7,6 +7,13 @@ kv_namespaces = [
 ]
 
 [triggers]
-# "0 */2 * * *": trip-reminder ticks, every 2 hours on the hour (00:00, 02:00, ...).
-# "*/15 * * * *": SMS fire-check engine ticks, every 15 minutes.
-crons = ["0 */2 * * *", "*/15 * * * *"]
+# Single tick every 15 minutes drives both the SMS fire-check engine and the
+# trip-reminder check (see scheduled() in index.js) - each has its own
+# interval-slot dedupe on top of this, configurable via text (CHECK EVERY /
+# TRIP REMINDER EVERY), down to this 15-min floor. Free-tier cost: 96
+# invocations/day, well under the 100k/day free request quota; each
+# invocation is mostly awaited network I/O (CWFIS fetch, Nominatim, Twilio),
+# which doesn't count against the Workers CPU-time limit the way active JS
+# execution does - so this tick rate is effectively free regardless of how
+# tight the configured cadences get, as long as neither goes below 15 min.
+crons = ["*/15 * * * *"]
