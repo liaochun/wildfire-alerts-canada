@@ -16,6 +16,7 @@ import os
 import re
 import smtplib
 import sys
+import time
 import urllib.parse
 from datetime import datetime, timezone
 from email.mime.text import MIMEText
@@ -169,11 +170,34 @@ def stage_name(code):
     return {"OC": "Out of Control", "BH": "Being Held", "UC": "Under Control", "EX": "Extinguished"}.get(code, code)
 
 
-def format_cwfis_event(fid, prev_stage, new_stage, fire):
+def reverse_geocode_city_province(lat, lon):
+    try:
+        resp = requests.get(
+            "https://nominatim.openstreetmap.org/reverse",
+            params={"format": "json", "lat": lat, "lon": lon, "zoom": 10},
+            headers={"User-Agent": "wildfire-alerts-canada/1.0 (personal project)"},
+            timeout=15,
+        )
+        resp.raise_for_status()
+        addr = resp.json().get("address", {})
+        city = None
+        for key in ("city", "town", "village", "hamlet", "municipality", "county"):
+            if addr.get(key):
+                city = addr[key]
+                break
+        if not city:
+            return None
+        return f"{city}, {addr['state']}" if addr.get("state") else city
+    except requests.RequestException:
+        return None
+
+
+def format_cwfis_event(fid, prev_stage, new_stage, fire, place):
+    where = f"{place} ({fire.get('lat')},{fire.get('lon')})" if place else f"{fire.get('lat')},{fire.get('lon')}"
     return (
         f"Fire {fid} ({fire.get('agency')}, {fire.get('size')} ha): "
         f"{stage_name(prev_stage) if prev_stage else 'new'} -> {stage_name(new_stage)} "
-        f"at {fire.get('lat')},{fire.get('lon')}"
+        f"at {where}"
     )
 
 
@@ -226,12 +250,31 @@ def main():
     firms_rows = fetch_firms(firms_map_key)
     firms_clusters, new_watermark = summarize_firms(firms_rows, state.get("firms_last_watermark", ""))
 
-    discord_lines = [format_cwfis_event(*e) for e in cwfis_events]
+    # Nominatim allows ~1 req/sec - stagger every reverse-geocode call below
+    # (both the per-fire-event loop and the FIRMS cluster loop) with a shared
+    # counter: no sleep before the first call, 1s before every call after.
+    geocode_calls = 0
+
+    def staggered_geocode(lat, lon):
+        nonlocal geocode_calls
+        if geocode_calls > 0:
+            time.sleep(1)
+        geocode_calls += 1
+        return reverse_geocode_city_province(lat, lon)
+
+    discord_lines = []
+    for fid, prev_stage, new_stage, fire in cwfis_events:
+        place = None
+        if fire.get("lat") is not None and fire.get("lon") is not None:
+            place = staggered_geocode(fire["lat"], fire["lon"])
+        discord_lines.append(format_cwfis_event(fid, prev_stage, new_stage, fire, place))
     if firms_clusters:
-        discord_lines.append(
-            "New FIRMS hotspot clusters: "
-            + "; ".join(f"~{lat},{lon} ({n} detections)" for (lat, lon), n in firms_clusters)
-        )
+        cluster_lines = []
+        for (lat, lon), n in firms_clusters:
+            place = staggered_geocode(lat, lon)
+            where = f"{place} ({lat},{lon})" if place else f"{lat},{lon}"
+            cluster_lines.append(f"~{where} ({n} detections)")
+        discord_lines.append("New FIRMS hotspot clusters: " + "; ".join(cluster_lines))
 
     if channels.get("discord") and env("DISCORD_WEBHOOK_URL"):
         for line in discord_lines:

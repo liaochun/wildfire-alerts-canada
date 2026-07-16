@@ -84,6 +84,39 @@ async function setState(env, state) {
   await env.CONTROL_KV.put(KV_KEY, JSON.stringify(state));
 }
 
+// Next-check ETA helpers for STATUS. Kept sync (no network calls) so
+// statusReply() doesn't need to become async.
+function nextFireCheckEta(state) {
+  if (!state.timezone) return "location not set";
+  const nowLocal = new Date(new Date().toLocaleString("en-US", { timeZone: state.timezone }));
+  const minutesSince8am = nowLocal.getHours() * 60 + nowLocal.getMinutes() - 8 * 60;
+  if (minutesSince8am < 0) return "8:00am (window opens then)";
+  if (minutesSince8am >= 16 * 60) return "8:00am tomorrow (window closed for today)";
+  const slotIndex = Math.floor(minutesSince8am / 60);
+  const dateStr = nowLocal.toISOString().slice(0, 10);
+  const lastSlot = state.fire_alert.last_alert_slot;
+  const alreadyHandled = lastSlot && lastSlot[0] === dateStr && lastSlot[1] === slotIndex;
+  if (!alreadyHandled) return "within 15 min (this hour not yet checked)";
+  return `${nextHourlySlotClock(slotIndex)} (next hourly slot)`;
+}
+
+function nextTripReminderEta(state) {
+  if (!state.trip_mode) return "trip mode off";
+  if (!state.timezone) return "location not set";
+  const now = new Date();
+  let next = new Date(Date.UTC(
+    now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),
+    now.getUTCHours() - (now.getUTCHours() % 2), 0, 0, 0
+  ));
+  if (next <= now) next = new Date(next.getTime() + 2 * 60 * 60 * 1000);
+  for (let i = 0; i < 12; i++) {
+    const localHour = new Date(next.toLocaleString("en-US", { timeZone: state.timezone })).getHours();
+    if (localHour >= 8) break;
+    next = new Date(next.getTime() + 2 * 60 * 60 * 1000);
+  }
+  return next.toLocaleString("en-US", { timeZone: state.timezone, hour: "numeric", minute: "2-digit", hour12: true });
+}
+
 function statusReply(state) {
   const c = state.channels;
   const loc = state.location.lat != null
@@ -93,7 +126,9 @@ function statusReply(state) {
     `SMS: ${c.sms ? "on" : "paused"} | Discord: ${c.discord ? "on" : "paused"} | Email: ${c.email ? "on" : "paused"}`,
     `Location: ${loc}`,
     `Timezone: ${state.timezone || "not set"}`,
+    `Next fire check: ${nextFireCheckEta(state)}`,
     `Trip mode: ${state.trip_mode ? "on" : "off"}`,
+    `Next trip reminder: ${nextTripReminderEta(state)}`,
     `Contact: ${state.contact_number || "not set"}`,
     `Contact fire alerts: ${state.contact_fire_alerts ? "on" : "off"}`,
   ].join("\n\n");
@@ -179,23 +214,6 @@ function stageName(code) {
   return { OC: "Out of Control", BH: "Being Held", UC: "Under Control", EX: "Extinguished" }[code] || code;
 }
 
-async function reverseGeocodeCity(lat, lon) {
-  try {
-    const resp = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`,
-      { headers: { "User-Agent": "wildfire-alerts-canada/1.0 (personal project)" } }
-    );
-    if (!resp.ok) return null;
-    const addr = (await resp.json()).address || {};
-    for (const key of ["city", "town", "village", "hamlet", "municipality", "county"]) {
-      if (addr[key]) return addr[key];
-    }
-  } catch (_) {
-    // fall through
-  }
-  return null;
-}
-
 async function reverseGeocodeCityProvince(lat, lon) {
   try {
     const resp = await fetch(
@@ -247,15 +265,15 @@ async function fetchNearbyFires(lat, lon, radiusKm, maxResults) {
 
 async function formatFireSnapshot(lat, lon) {
   const fires = await fetchNearbyFires(lat, lon, 500, 5);
-  const originCity = await reverseGeocodeCity(lat, lon);
-  const originLabel = originCity
-    ? `${originCity} (${lat.toFixed(3)},${lon.toFixed(3)})`
+  const originCityProvince = await reverseGeocodeCityProvince(lat, lon);
+  const originLabel = originCityProvince
+    ? `${originCityProvince} (${lat.toFixed(3)},${lon.toFixed(3)})`
     : `${lat.toFixed(3)},${lon.toFixed(3)}`;
   if (!fires.length) return `No active fires within 500km of ${originLabel} right now.`;
   const lines = [];
   for (const f of fires) {
-    const city = await reverseGeocodeCity(f.lat, f.lon);
-    const place = city ? `${city} (${f.lat.toFixed(2)},${f.lon.toFixed(2)})` : `${f.lat.toFixed(2)},${f.lon.toFixed(2)}`;
+    const cityProvince = await reverseGeocodeCityProvince(f.lat, f.lon);
+    const place = cityProvince ? `${cityProvince} (${f.lat.toFixed(2)},${f.lon.toFixed(2)})` : `${f.lat.toFixed(2)},${f.lon.toFixed(2)}`;
     const dir = compassDirection(lat, lon, f.lat, f.lon);
     lines.push(`${place} (${f.agency}, ${f.size} ha): ${stageName(f.stage)}, ${f.dist.toFixed(0)}km ${dir} of you`);
   }
@@ -329,8 +347,13 @@ async function runFireCheckSms(env) {
   async function staggeredGeocode(lat, lon) {
     if (geocodeCalls > 0) await sleep(1000);
     geocodeCalls++;
-    return await reverseGeocodeCity(lat, lon);
+    return await reverseGeocodeCityProvince(lat, lon);
   }
+
+  const ownCityProvince = await staggeredGeocode(state.location.lat, state.location.lon);
+  const ownLabel = ownCityProvince
+    ? `${ownCityProvince} (${state.location.lat.toFixed(2)},${state.location.lon.toFixed(2)})`
+    : `${state.location.lat.toFixed(2)},${state.location.lon.toFixed(2)}`;
 
   const smsLines = [];
   for (const [fid, fire] of Object.entries(curFires)) {
@@ -341,9 +364,9 @@ async function runFireCheckSms(env) {
     const dist = haversineKm(state.location.lat, state.location.lon, fire.lat, fire.lon);
     const isUrgent = ALERT_STAGES.has(stage) && dist <= URGENT_RADIUS_KM;
     if (!isUrgent && !(isTransition && dist <= ALERT_RADIUS_KM)) continue;
-    const city = await staggeredGeocode(fire.lat, fire.lon);
-    const near = city
-      ? `${city} (${fire.lat.toFixed(2)},${fire.lon.toFixed(2)})`
+    const cityProvince = await staggeredGeocode(fire.lat, fire.lon);
+    const near = cityProvince
+      ? `${cityProvince} (${fire.lat.toFixed(2)},${fire.lon.toFixed(2)})`
       : `${fire.lat.toFixed(2)},${fire.lon.toFixed(2)}`;
     const direction = compassDirection(state.location.lat, state.location.lon, fire.lat, fire.lon);
     const change = isTransition
@@ -357,7 +380,7 @@ async function runFireCheckSms(env) {
 
   const nextSlotClock = nextHourlySlotClock(slotIndex);
   const footer = `\n\nNext check: ${nextSlotClock}`;
-  const locationLine = `Tracking: ${state.location.lat.toFixed(2)},${state.location.lon.toFixed(2)}\n\n`;
+  const locationLine = `Tracking: ${ownLabel}\n\n`;
   let body;
   if (smsLines.length) {
     body =
@@ -378,16 +401,16 @@ async function runFireCheckSms(env) {
       if (fire.lat == null || fire.lon == null) continue;
       const dist = haversineKm(state.location.lat, state.location.lon, fire.lat, fire.lon);
       if (dist > ALERT_RADIUS_KM) continue;
-      const city = await staggeredGeocode(fire.lat, fire.lon);
-      const near = city
-        ? `${city} (${fire.lat.toFixed(2)},${fire.lon.toFixed(2)})`
+      const cityProvince = await staggeredGeocode(fire.lat, fire.lon);
+      const near = cityProvince
+        ? `${cityProvince} (${fire.lat.toFixed(2)},${fire.lon.toFixed(2)})`
         : `${fire.lat.toFixed(2)},${fire.lon.toFixed(2)}`;
       const direction = compassDirection(state.location.lat, state.location.lon, fire.lat, fire.lon);
       eodActive.push(`${stageName(stage)} - ${near}, ${dist.toFixed(0)}km ${direction} of you (${fire.size} ha)`);
     }
     const eodBody =
       `End-of-day summary: ${eodActive.length} active fire${eodActive.length !== 1 ? "s" : ""} within ` +
-      `${ALERT_RADIUS_KM}km of ${state.location.lat.toFixed(2)},${state.location.lon.toFixed(2)}:\n\n` +
+      `${ALERT_RADIUS_KM}km of ${ownLabel}:\n\n` +
       (eodActive.length ? eodActive.join("\n") : "None active right now.");
     await sendSmsViaTwilio(env, env.TWILIO_TO_NUMBER, eodBody);
   }
