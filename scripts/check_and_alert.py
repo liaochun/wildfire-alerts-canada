@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Fetch Canadian wildfire data and send alerts via SMS/Discord/email.
+"""Fetch Canadian wildfire data and send alerts via Discord/email.
+
+SMS alerting has moved to the Cloudflare Worker's own cron trigger for
+reliability (GitHub Actions' best-effort "schedule:" trigger was observed
+silently skipping ticks in production); this script no longer sends SMS.
 
 Run every 20 minutes by GitHub Actions (skipping the UTC hours where no
 Canadian timezone's window can be open). Self-gates on the 8am-midnight
@@ -8,12 +12,10 @@ handled slot in state so it fires correctly regardless of exact alignment
 between the tick interval and slot boundaries (see main()).
 """
 import json
-import math
 import os
 import re
 import smtplib
 import sys
-import time
 import urllib.parse
 from datetime import datetime, timezone
 from email.mime.text import MIMEText
@@ -28,8 +30,6 @@ CWFIS_URL = "https://geoserver.cwfif.nrcan.gc.ca/geoserver/wfs"
 CWFIS_TYPENAME = "public:cwfif_national_activefires"
 FIRMS_BBOX = "-141,41.7,-52.6,83.1"  # west,south,east,north (Canada)
 ALERT_STAGES = {"BH", "OC"}
-ALERT_RADIUS_KM = 500  # transition-only alerts out to this range
-URGENT_RADIUS_KM = 150  # repeated every-cycle alerts inside this range
 
 
 def env(name, default=None, required=False):
@@ -78,21 +78,6 @@ def current_slot(tz_name):
     if not (0 <= minutes_since_8am <= 15 * 60):
         return None
     return now_local.date().isoformat(), minutes_since_8am // 60
-
-
-def next_slot_time_str(slot_index):
-    """Human-friendly clock time of the next scheduled hourly slot."""
-    next_index = slot_index + 1
-    wraps_to_tomorrow = next_index > 15
-    if wraps_to_tomorrow:
-        next_index = 0
-    total_minutes = 8 * 60 + next_index * 60
-    hour = (total_minutes // 60) % 24
-    minute = total_minutes % 60
-    suffix = "am" if hour < 12 else "pm"
-    hour12 = hour % 12 or 12
-    time_str = f"{hour12}:{minute:02d}{suffix}"
-    return f"{time_str} tomorrow" if wraps_to_tomorrow else time_str
 
 
 def fetch_cwfis():
@@ -150,30 +135,6 @@ def fetch_firms(map_key):
     return rows
 
 
-def haversine_km(lat1, lon1, lat2, lon2):
-    r = 6371.0
-    p1, p2 = math.radians(lat1), math.radians(lat2)
-    dp = math.radians(lat2 - lat1)
-    dl = math.radians(lon2 - lon1)
-    a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
-    return 2 * r * math.asin(math.sqrt(a))
-
-
-COMPASS_POINTS = [
-    "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
-    "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW",
-]
-
-
-def compass_direction(lat1, lon1, lat2, lon2):
-    y = math.sin(math.radians(lon2 - lon1)) * math.cos(math.radians(lat2))
-    x = math.cos(math.radians(lat1)) * math.sin(math.radians(lat2)) - math.sin(
-        math.radians(lat1)
-    ) * math.cos(math.radians(lat2)) * math.cos(math.radians(lon2 - lon1))
-    bearing = (math.degrees(math.atan2(y, x)) + 360) % 360
-    return COMPASS_POINTS[round(bearing / 22.5) % 16]
-
-
 def compute_cwfis_transitions(prev_fires, cur_fires):
     events = []
     for fid, cur in cur_fires.items():
@@ -204,24 +165,6 @@ def summarize_firms(rows, watermark):
     return list(clusters.items()), new_watermark
 
 
-def reverse_geocode_city(lat, lon):
-    try:
-        resp = requests.get(
-            "https://nominatim.openstreetmap.org/reverse",
-            params={"format": "json", "lat": lat, "lon": lon, "zoom": 10},
-            headers={"User-Agent": "wildfire-alerts-canada/1.0 (personal project)"},
-            timeout=15,
-        )
-        resp.raise_for_status()
-        addr = resp.json().get("address", {})
-        for key in ("city", "town", "village", "hamlet", "municipality", "county"):
-            if addr.get(key):
-                return addr[key]
-    except requests.RequestException:
-        pass
-    return None
-
-
 def stage_name(code):
     return {"OC": "Out of Control", "BH": "Being Held", "UC": "Under Control", "EX": "Extinguished"}.get(code, code)
 
@@ -232,16 +175,6 @@ def format_cwfis_event(fid, prev_stage, new_stage, fire):
         f"{stage_name(prev_stage) if prev_stage else 'new'} -> {stage_name(new_stage)} "
         f"at {fire.get('lat')},{fire.get('lon')}"
     )
-
-
-def send_sms(account_sid, auth_token, from_number, to_number, body):
-    resp = requests.post(
-        f"https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json",
-        auth=(account_sid, auth_token),
-        data={"From": from_number, "To": to_number, "Body": body},
-        timeout=20,
-    )
-    resp.raise_for_status()
 
 
 def send_discord(webhook_url, content):
@@ -282,9 +215,7 @@ def main():
     # else: no location texted yet, so no timezone/window to gate on -
     # run unconditionally (national Discord/email feed still useful).
 
-    channels = control.get("channels", {"sms": True, "discord": True, "email": True})
-    location = control.get("location") or {}
-    loc_lat, loc_lon = location.get("lat"), location.get("lon")
+    channels = control.get("channels", {"discord": True, "email": True})
 
     prev_fires = state.get("cwfis", {})
 
@@ -305,52 +236,6 @@ def main():
     if channels.get("discord") and env("DISCORD_WEBHOOK_URL"):
         for line in discord_lines:
             send_discord(env("DISCORD_WEBHOOK_URL"), line)
-
-    if channels.get("sms") and loc_lat is not None and loc_lon is not None:
-        event_map = {fid: (prev_stage, new_stage) for fid, prev_stage, new_stage, _ in cwfis_events}
-        sms_lines = []
-        geocode_calls = 0
-        for fid, fire in cur_fires.items():
-            stage = fire["stage"]
-            is_transition = fid in event_map
-            if stage not in ALERT_STAGES and not is_transition:
-                continue  # not currently active and nothing changed this cycle
-            if fire.get("lat") is None or fire.get("lon") is None:
-                continue
-            dist = haversine_km(loc_lat, loc_lon, fire["lat"], fire["lon"])
-            is_urgent = stage in ALERT_STAGES and dist <= URGENT_RADIUS_KM
-            if not is_urgent and not (is_transition and dist <= ALERT_RADIUS_KM):
-                continue
-            if geocode_calls > 0:
-                time.sleep(1)  # respect Nominatim's 1 req/sec usage policy
-            geocode_calls += 1
-            city = reverse_geocode_city(fire["lat"], fire["lon"])
-            coords = f"{fire['lat']:.2f},{fire['lon']:.2f}"
-            near = f"{city} ({coords})" if city else coords
-            direction = compass_direction(loc_lat, loc_lon, fire["lat"], fire["lon"])
-            if is_transition:
-                prev_stage, new_stage = event_map[fid]
-                change = f"{stage_name(prev_stage) if prev_stage else 'new'} -> {stage_name(new_stage)}"
-            else:
-                change = f"still {stage_name(stage)}"
-            prefix = "URGENT: " if is_urgent else ""
-            sms_lines.append(
-                f"{prefix}Fire near {near} ({fire.get('agency')}, {fire.get('size')} ha): "
-                f"{change}, {dist:.0f}km {direction} of you"
-            )
-        footer = f"\n\nNext check: {next_slot_time_str(slot[1])}" if slot is not None else ""
-        if sms_lines:
-            header = f"Wildfire alert ({len(sms_lines)} fire{'s' if len(sms_lines) != 1 else ''} near you):\n\n"
-            body = header + "\n\n".join(sms_lines) + footer
-        else:
-            body = "No new fire activity within 500km of you as of now." + footer
-        send_sms(
-            env("TWILIO_ACCOUNT_SID", required=True),
-            env("TWILIO_AUTH_TOKEN", required=True),
-            env("TWILIO_FROM_NUMBER", required=True),
-            env("TWILIO_TO_NUMBER", required=True),
-            body,
-        )
 
     gmail_address = env("GMAIL_ADDRESS")
     if channels.get("email") and discord_lines and gmail_address:

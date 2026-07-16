@@ -7,5 +7,6 @@ kv_namespaces = [
 ]
 
 [triggers]
-# Every 2 hours, on the hour (00:00, 02:00, 04:00, ...).
-crons = ["0 */2 * * *"]
+# "0 */2 * * *": trip-reminder ticks, every 2 hours on the hour (00:00, 02:00, ...).
+# "*/15 * * * *": SMS fire-check engine ticks, every 15 minutes.
+crons = ["0 */2 * * *", "*/15 * * * *"]

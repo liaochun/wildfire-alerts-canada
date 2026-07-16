@@ -14,10 +14,17 @@ const DEFAULT_STATE = {
   last_trip_reminder: null,
   contact_number: null,
   contact_fire_alerts: false,
+  fire_alert: { cwfis: {}, last_alert_slot: null },
 };
 
 const CWFIS_URL = "https://geoserver.cwfif.nrcan.gc.ca/geoserver/wfs";
 const CWFIS_TYPENAME = "public:cwfif_national_activefires";
+
+// SMS fire-check engine (ported from scripts/check_and_alert.py - see that
+// file's Discord/email paths for the sibling logic that stays on GH Actions).
+const ALERT_RADIUS_KM = 500;
+const URGENT_RADIUS_KM = 150;
+const ALERT_STAGES = new Set(["BH", "OC"]);
 
 const TZ_BANDS = [
   { upTo: -120, tz: "America/Vancouver" },
@@ -66,6 +73,10 @@ async function getState(env) {
     last_trip_reminder: parsed.last_trip_reminder ?? null,
     contact_number: parsed.contact_number ?? null,
     contact_fire_alerts: parsed.contact_fire_alerts ?? false,
+    fire_alert: {
+      ...DEFAULT_STATE.fire_alert,
+      ...(parsed.fire_alert || {}),
+    },
   };
 }
 
@@ -248,6 +259,140 @@ async function formatFireSnapshot(lat, lon) {
     lines.push(`${place} (${f.agency}, ${f.size} ha): ${stageName(f.stage)}, ${f.dist.toFixed(0)}km ${dir} of you`);
   }
   return `Current fires within 500km of ${originLabel} (closest ${fires.length}):\n\n` + lines.join("\n\n");
+}
+
+// Separate hourly-slot clock helper for the fire-check engine below. This is
+// intentionally NOT shared with formatSlotClock/nextSlotTimeStr above, which
+// use a different 45-minute-slot design for trip reminders/location replies -
+// reusing those would break that feature.
+function nextHourlySlotClock(slotIndex) {
+  const nextIndex = slotIndex + 1;
+  if (nextIndex > 15) return "8:00am tomorrow"; // wraps past the last slot (11pm-midnight)
+  const hour24 = 8 + nextIndex; // slot 0 starts at 8am, so slot n starts at 8+n
+  const suffix = hour24 < 12 ? "am" : "pm";
+  const hour12 = hour24 % 12 || 12;
+  return `${hour12}:00${suffix}`;
+}
+
+async function runFireCheckSms(env) {
+  const state = await getState(env);
+  if (!state.channels.sms || state.location.lat == null || state.location.lon == null) return;
+
+  const nowLocal = new Date(new Date().toLocaleString("en-US", { timeZone: state.timezone }));
+  const minutesSince8am = nowLocal.getHours() * 60 + nowLocal.getMinutes() - 8 * 60;
+  if (minutesSince8am < 0 || minutesSince8am >= 16 * 60) return; // outside the 8am-midnight window
+  const slotIndex = Math.floor(minutesSince8am / 60);
+  const dateStr = nowLocal.toISOString().slice(0, 10);
+
+  const lastSlot = state.fire_alert.last_alert_slot;
+  if (lastSlot && lastSlot[0] === dateStr && lastSlot[1] === slotIndex) return; // already handled
+
+  const nowIsoUTC = new Date().toISOString().slice(0, 19);
+  const cql = `record_start<=${nowIsoUTC}Z AND record_end>=${nowIsoUTC}Z`;
+  const resp = await fetch(
+    `${CWFIS_URL}?service=WFS&version=2.0.0&request=GetFeature&typeName=${CWFIS_TYPENAME}` +
+      `&outputFormat=application/json&CQL_FILTER=${encodeURIComponent(cql)}`
+  );
+  if (!resp.ok) return;
+  const data = await resp.json();
+
+  // Full national snapshot - NOT radius-filtered, so we can correctly diff
+  // stage transitions for fires that may not have been near us last run.
+  const curFires = {};
+  for (const feat of data.features || []) {
+    const p = feat.properties;
+    const fid = p.national_fire_id;
+    if (!fid) continue;
+    let stage = p.stage_of_control_status;
+    if (!["OC", "BH", "UC"].includes(stage)) stage = "EX";
+    curFires[fid] = { stage, size: p.fire_size, lat: p.latitude, lon: p.longitude, agency: p.agency_code };
+  }
+
+  const prevFires = state.fire_alert.cwfis || {};
+  const eventMap = {};
+  for (const fid of Object.keys(curFires)) {
+    const prevStage = prevFires[fid]?.stage ?? null;
+    const newStage = curFires[fid].stage;
+    const isTransition =
+      (ALERT_STAGES.has(newStage) && newStage !== prevStage) ||
+      (newStage === "EX" && ALERT_STAGES.has(prevStage));
+    if (isTransition) eventMap[fid] = [prevStage, newStage];
+  }
+
+  // Nominatim allows ~1 req/sec - stagger every reverse-geocode call in this
+  // invocation (both the per-fire loop below and the end-of-day loop) with a
+  // shared counter, same pattern as the Python original: no sleep before the
+  // first call, 1000ms before every call after that.
+  let geocodeCalls = 0;
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  async function staggeredGeocode(lat, lon) {
+    if (geocodeCalls > 0) await sleep(1000);
+    geocodeCalls++;
+    return await reverseGeocodeCity(lat, lon);
+  }
+
+  const smsLines = [];
+  for (const [fid, fire] of Object.entries(curFires)) {
+    const stage = fire.stage;
+    const isTransition = fid in eventMap;
+    if (!ALERT_STAGES.has(stage) && !isTransition) continue;
+    if (fire.lat == null || fire.lon == null) continue;
+    const dist = haversineKm(state.location.lat, state.location.lon, fire.lat, fire.lon);
+    const isUrgent = ALERT_STAGES.has(stage) && dist <= URGENT_RADIUS_KM;
+    if (!isUrgent && !(isTransition && dist <= ALERT_RADIUS_KM)) continue;
+    const city = await staggeredGeocode(fire.lat, fire.lon);
+    const near = city
+      ? `${city} (${fire.lat.toFixed(2)},${fire.lon.toFixed(2)})`
+      : `${fire.lat.toFixed(2)},${fire.lon.toFixed(2)}`;
+    const direction = compassDirection(state.location.lat, state.location.lon, fire.lat, fire.lon);
+    const change = isTransition
+      ? `${eventMap[fid][0] ? stageName(eventMap[fid][0]) : "new"} -> ${stageName(eventMap[fid][1])}`
+      : `still ${stageName(stage)}`;
+    const prefix = isUrgent ? "URGENT: " : "";
+    smsLines.push(
+      `${prefix}Fire near ${near} (${fire.agency}, ${fire.size} ha): ${change}, ${dist.toFixed(0)}km ${direction} of you`
+    );
+  }
+
+  const nextSlotClock = nextHourlySlotClock(slotIndex);
+  const footer = `\n\nNext check: ${nextSlotClock}`;
+  const locationLine = `Tracking: ${state.location.lat.toFixed(2)},${state.location.lon.toFixed(2)}\n\n`;
+  let body;
+  if (smsLines.length) {
+    body =
+      locationLine +
+      `Wildfire alert (${smsLines.length} fire${smsLines.length !== 1 ? "s" : ""} near you):\n\n` +
+      smsLines.join("\n\n") +
+      footer;
+  } else {
+    body = locationLine + `No new fire activity within ${ALERT_RADIUS_KM}km of you as of now.` + footer;
+  }
+  await sendSmsViaTwilio(env, env.TWILIO_TO_NUMBER, body);
+
+  if (slotIndex === 15) {
+    const eodActive = [];
+    for (const [, fire] of Object.entries(curFires)) {
+      const stage = fire.stage;
+      if (!ALERT_STAGES.has(stage)) continue;
+      if (fire.lat == null || fire.lon == null) continue;
+      const dist = haversineKm(state.location.lat, state.location.lon, fire.lat, fire.lon);
+      if (dist > ALERT_RADIUS_KM) continue;
+      const city = await staggeredGeocode(fire.lat, fire.lon);
+      const near = city
+        ? `${city} (${fire.lat.toFixed(2)},${fire.lon.toFixed(2)})`
+        : `${fire.lat.toFixed(2)},${fire.lon.toFixed(2)}`;
+      const direction = compassDirection(state.location.lat, state.location.lon, fire.lat, fire.lon);
+      eodActive.push(`${stageName(stage)} - ${near}, ${dist.toFixed(0)}km ${direction} of you (${fire.size} ha)`);
+    }
+    const eodBody =
+      `End-of-day summary: ${eodActive.length} active fire${eodActive.length !== 1 ? "s" : ""} within ` +
+      `${ALERT_RADIUS_KM}km of ${state.location.lat.toFixed(2)},${state.location.lon.toFixed(2)}:\n\n` +
+      (eodActive.length ? eodActive.join("\n") : "None active right now.");
+    await sendSmsViaTwilio(env, env.TWILIO_TO_NUMBER, eodBody);
+  }
+
+  state.fire_alert = { cwfis: curFires, last_alert_slot: [dateStr, slotIndex] };
+  await setState(env, state);
 }
 
 async function sendSmsViaTwilio(env, to, body) {
@@ -558,6 +703,12 @@ export default {
   },
 
   async scheduled(event, env, ctx) {
+    if (event.cron === "*/15 * * * *") {
+      await runFireCheckSms(env);
+      return;
+    }
+    if (event.cron !== "0 */2 * * *") return; // unrecognized cron - no-op
+
     const state = await getState(env);
     if (!state.trip_mode || !state.channels.sms) return;
     if (!state.timezone) return; // no location yet - nothing to remind about
