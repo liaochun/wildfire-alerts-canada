@@ -110,10 +110,10 @@ async function setState(env, state) {
   await env.CONTROL_KV.put(KV_KEY, JSON.stringify(state));
 }
 
-// Next-check ETA helpers for STATUS. Kept sync (no network calls) so
-// statusReply() doesn't need to become async. Both the fire-check and
-// trip-reminder engines share this same 8am-midnight window / interval-slot
-// design, generalized to whatever interval each is currently configured to.
+// Next-check ETA helpers for STATUS. Kept sync (no network calls). Both the
+// fire-check and trip-reminder engines share this same 8am-midnight window /
+// interval-slot design, generalized to whatever interval each is currently
+// configured to.
 const WINDOW_MINUTES = 16 * 60; // 8am-midnight
 
 function nextIntervalEta(timezone, intervalMinutes, lastSlot) {
@@ -138,11 +138,15 @@ function nextTripReminderEta(state) {
   return nextIntervalEta(state.timezone, state.trip_reminder_interval_minutes, state.last_trip_reminder);
 }
 
-function statusReply(state) {
+async function statusReply(state) {
   const c = state.channels;
-  const loc = state.location.lat != null
-    ? `${state.location.lat.toFixed(3)},${state.location.lon.toFixed(3)} (from: "${state.location.raw_input}")`
-    : "not set";
+  let loc = "not set";
+  if (state.location.lat != null) {
+    const cityProvince = await reverseGeocodeCityProvince(state.location.lat, state.location.lon);
+    const coords = `${state.location.lat.toFixed(3)},${state.location.lon.toFixed(3)}`;
+    const place = cityProvince ? `${cityProvince} (${coords})` : coords;
+    loc = `${place} (from: "${state.location.raw_input}")`;
+  }
   return [
     `SMS: ${c.sms ? "on" : "paused"} | Discord: ${c.discord ? "on" : "paused"} | Email: ${c.email ? "on" : "paused"}`,
     `Location: ${loc}`,
@@ -523,7 +527,7 @@ async function applyCommand(env, channel, rawText, fromNumber) {
   }
 
   if (upper === "STATUS") {
-    return statusReply(state);
+    return await statusReply(state);
   }
 
   if (upper === "OPTIONS" || upper === "HELP") {
