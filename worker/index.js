@@ -95,6 +95,7 @@ function statusReply(state) {
     `Timezone: ${state.timezone || "not set"}`,
     `Trip mode: ${state.trip_mode ? "on" : "off"}`,
     `Contact: ${state.contact_number || "not set"}`,
+    `Contact fire alerts: ${state.contact_fire_alerts ? "on" : "off"}`,
   ].join("\n\n");
 }
 
