@@ -112,6 +112,13 @@
       "size": 1.42,
       "stage": "BH"
     },
+    "2026_AB_HWF-118-2026": {
+      "agency": "AB",
+      "lat": 58.70642,
+      "lon": -118.6923,
+      "size": 0.01,
+      "stage": "UC"
+    },
     "2026_AB_LWF-081-2026": {
       "agency": "AB",
       "lat": 55.71867,
@@ -130,7 +137,7 @@
       "agency": "AB",
       "lat": 56.12167,
       "lon": -110.265,
-      "size": 250,
+      "size": 432,
       "stage": "OC"
     },
     "2026_AB_LWF-084-2026": {
@@ -180,6 +187,13 @@
       "lat": 55.46933,
       "lon": -114.61717,
       "size": 2.2,
+      "stage": "UC"
+    },
+    "2026_AB_SWF-056-2026": {
+      "agency": "AB",
+      "lat": 55.53825,
+      "lon": -116.15408,
+      "size": 0.01,
       "stage": "UC"
     },
     "2026_BC_2026-C10467": {
@@ -1866,7 +1880,7 @@
       "agency": "MB",
       "lat": 53.61139,
       "lon": -95.46222,
-      "size": 5,
+      "size": 343,
       "stage": "OC"
     },
     "2026_MB_MB-NO188": {
@@ -1948,9 +1962,9 @@
     },
     "2026_MB_MB-NO199": {
       "agency": "MB",
-      "lat": 55.49333,
-      "lon": -97.33,
-      "size": 5,
+      "lat": 55.49861,
+      "lon": -97.31889,
+      "size": 20,
       "stage": "OC"
     },
     "2026_MB_MB-NO200": {
@@ -1969,8 +1983,8 @@
     },
     "2026_MB_MB-NO202": {
       "agency": "MB",
-      "lat": 55.32694,
-      "lon": -98.80222,
+      "lat": 55.32222,
+      "lon": -98.79778,
       "size": 10,
       "stage": "OC"
     },
@@ -1992,15 +2006,15 @@
       "agency": "NB",
       "lat": 45.55242,
       "lon": -67.06945,
-      "size": 13,
+      "size": 17.5,
       "stage": "UC"
     },
     "2026_NB_2026316": {
       "agency": "NB",
       "lat": 45.5252,
       "lon": -67.04645,
-      "size": 1.5,
-      "stage": "OC"
+      "size": 0.4,
+      "stage": "UC"
     },
     "2026_NL_605": {
       "agency": "NL",
@@ -4044,7 +4058,7 @@
       "lat": 50.224,
       "lon": -86.824,
       "size": 9,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_ON_NIP_FIRE_060": {
       "agency": "ON",
@@ -4646,7 +4660,7 @@
       "lat": 46.3069,
       "lon": -81.1175,
       "size": 0.4,
-      "stage": "OC"
+      "stage": "UC"
     },
     "2026_ON_SUD_FIRE_026": {
       "agency": "ON",
@@ -4660,14 +4674,14 @@
       "lat": 46.0351,
       "lon": -81.1401,
       "size": 0.2,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_ON_SUD_FIRE_028": {
       "agency": "ON",
       "lat": 46.7436,
       "lon": -80.8828,
       "size": 0.1,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_ON_THU_FIRE_036": {
       "agency": "ON",
@@ -4694,14 +4708,14 @@
       "agency": "ON",
       "lat": 49.7549,
       "lon": -89.9496,
-      "size": 5452,
+      "size": 5890,
       "stage": "OC"
     },
     "2026_ON_THU_FIRE_056": {
       "agency": "ON",
       "lat": 49.4203,
       "lon": -90.4703,
-      "size": 8221,
+      "size": 10990,
       "stage": "OC"
     },
     "2026_ON_THU_FIRE_058": {
@@ -4786,7 +4800,7 @@
       "lat": 49.5555,
       "lon": -85.7304,
       "size": 0.7,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_ON_WAW_FIRE_023": {
       "agency": "ON",
@@ -4814,7 +4828,7 @@
       "lat": 49.719,
       "lon": -85.7348,
       "size": 0.3,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_PC_2026LM2": {
       "agency": "PC",
@@ -5983,7 +5997,7 @@
       "lat": 49.5236,
       "lon": -79.4517,
       "size": 1332.4,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_QC_546": {
       "agency": "QC",
@@ -6151,14 +6165,14 @@
       "lat": 49.2833,
       "lon": -77.6253,
       "size": 0.1,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_QC_609": {
       "agency": "QC",
       "lat": 49.2644,
       "lon": -77.6797,
       "size": 0,
-      "stage": "UC"
+      "stage": "BH"
     },
     "2026_SK_26BN-DIGBEE": {
       "agency": "SK",
@@ -6302,8 +6316,8 @@
     },
     "2026_SK_26LA-FRENCH": {
       "agency": "SK",
-      "lat": 55.65096,
-      "lon": -104.57554,
+      "lat": 55.65263,
+      "lon": -104.58081,
       "size": 1,
       "stage": "OC"
     },
@@ -6493,7 +6507,7 @@
       "agency": "SK",
       "lat": 58.26642,
       "lon": -102.70213,
-      "size": 9926,
+      "size": 9972,
       "stage": "OC"
     },
     "2026_SK_26SR-PHILLIPS": {
@@ -6689,6 +6703,6 @@
   "firms_last_watermark": "2026-07-18 909",
   "last_alert_slot": [
     "2026-07-18",
-    0
+    3
   ]
 }
