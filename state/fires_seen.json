@@ -607,7 +607,7 @@
       "lat": 58.19483,
       "lon": -122.7485,
       "size": 0.09,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_BC_2026-K20924": {
       "agency": "BC",
@@ -4102,6 +4102,13 @@
       "size": 0.7,
       "stage": "OC"
     },
+    "2026_ON_NIP_FIRE_069": {
+      "agency": "ON",
+      "lat": 51.3579,
+      "lon": -88.6064,
+      "size": 2000,
+      "stage": "OC"
+    },
     "2026_ON_NOR_FIRE_027": {
       "agency": "ON",
       "lat": 46.6854,
@@ -4239,7 +4246,7 @@
       "agency": "ON",
       "lat": 51.3787,
       "lon": -89.7245,
-      "size": 779.2,
+      "size": 38305.7,
       "stage": "OC"
     },
     "2026_ON_SLK_FIRE_021": {
@@ -4505,7 +4512,7 @@
       "agency": "ON",
       "lat": 51.2026,
       "lon": -90.026,
-      "size": 1195.7,
+      "size": 3334,
       "stage": "OC"
     },
     "2026_ON_SLK_FIRE_083": {
@@ -4575,7 +4582,7 @@
       "agency": "ON",
       "lat": 51.1714,
       "lon": -89.7415,
-      "size": 60,
+      "size": 2657.8,
       "stage": "OC"
     },
     "2026_ON_SLK_FIRE_093": {
@@ -4786,7 +4793,7 @@
       "lat": 49.0877,
       "lon": -86.2843,
       "size": 1.5,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_ON_WAW_FIRE_025": {
       "agency": "ON",
@@ -6256,7 +6263,7 @@
       "lat": 55.00633,
       "lon": -105.6375,
       "size": 37,
-      "stage": "UC"
+      "stage": "OC"
     },
     "2026_SK_26LA-FLEMING": {
       "agency": "SK",
@@ -6654,6 +6661,6 @@
   "firms_last_watermark": "2026-07-18 909",
   "last_alert_slot": [
     "2026-07-18",
-    4
+    5
   ]
 }
