@@ -1895,7 +1895,7 @@
       "lat": 55.49861,
       "lon": -97.31889,
       "size": 20,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_MB_MB-NO200": {
       "agency": "MB",
@@ -6696,6 +6696,6 @@
   "firms_last_watermark": "2026-07-19 850",
   "last_alert_slot": [
     "2026-07-19",
-    0
+    2
   ]
 }
