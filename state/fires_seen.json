@@ -768,7 +768,7 @@
       "lat": 49.3957,
       "lon": -117.58555,
       "size": 0.6,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_BC_2026-N51026": {
       "agency": "BC",
@@ -1188,7 +1188,7 @@
       "lat": 56.26167,
       "lon": -101.30528,
       "size": 1098.1,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_MB_MB-NO079": {
       "agency": "MB",
@@ -3721,7 +3721,7 @@
       "agency": "ON",
       "lat": 52.0314,
       "lon": -83.5051,
-      "size": 50,
+      "size": 243,
       "stage": "OC"
     },
     "2026_ON_DRY_FIRE_025": {
@@ -3756,7 +3756,7 @@
       "agency": "ON",
       "lat": 49.2371,
       "lon": -91.8508,
-      "size": 1762,
+      "size": 1855,
       "stage": "OC"
     },
     "2026_ON_FOR_FIRE_011": {
@@ -3974,7 +3974,7 @@
       "lat": 50.7348,
       "lon": -87.6865,
       "size": 2,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_ON_NIP_FIRE_050": {
       "agency": "ON",
@@ -4662,13 +4662,6 @@
       "size": 136.6,
       "stage": "OC"
     },
-    "2026_ON_SUD_FIRE_022": {
-      "agency": "ON",
-      "lat": 46.7764,
-      "lon": -80.457,
-      "size": 0.5,
-      "stage": "UC"
-    },
     "2026_ON_SUD_FIRE_024": {
       "agency": "ON",
       "lat": 46.2745,
@@ -4676,25 +4669,11 @@
       "size": 2,
       "stage": "UC"
     },
-    "2026_ON_SUD_FIRE_025": {
-      "agency": "ON",
-      "lat": 46.3069,
-      "lon": -81.1175,
-      "size": 0.4,
-      "stage": "UC"
-    },
     "2026_ON_SUD_FIRE_026": {
       "agency": "ON",
       "lat": 46.1977,
       "lon": -82.1157,
       "size": 1.5,
-      "stage": "UC"
-    },
-    "2026_ON_SUD_FIRE_027": {
-      "agency": "ON",
-      "lat": 46.0351,
-      "lon": -81.1401,
-      "size": 0.2,
       "stage": "UC"
     },
     "2026_ON_THU_FIRE_036": {
@@ -4729,7 +4708,7 @@
       "agency": "ON",
       "lat": 49.4203,
       "lon": -90.4703,
-      "size": 10990,
+      "size": 7947,
       "stage": "OC"
     },
     "2026_ON_THU_FIRE_058": {
@@ -4800,13 +4779,6 @@
       "lat": 49.6404,
       "lon": -85.2873,
       "size": 2.3,
-      "stage": "UC"
-    },
-    "2026_ON_WAW_FIRE_022": {
-      "agency": "ON",
-      "lat": 49.5555,
-      "lon": -85.7304,
-      "size": 0.7,
       "stage": "UC"
     },
     "2026_ON_WAW_FIRE_023": {
@@ -6339,7 +6311,7 @@
       "agency": "SK",
       "lat": 56.10717,
       "lon": -102.9605,
-      "size": 6372,
+      "size": 6397,
       "stage": "OC"
     },
     "2026_SK_26LA-MOOSE": {
@@ -6703,6 +6675,6 @@
   "firms_last_watermark": "2026-07-19 850",
   "last_alert_slot": [
     "2026-07-19",
-    3
+    6
   ]
 }
