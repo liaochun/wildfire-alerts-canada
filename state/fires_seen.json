@@ -3717,6 +3717,13 @@
       "size": 117,
       "stage": "OC"
     },
+    "2026_ON_COC_FIRE_045": {
+      "agency": "ON",
+      "lat": 52.0314,
+      "lon": -83.5051,
+      "size": 50,
+      "stage": "OC"
+    },
     "2026_ON_DRY_FIRE_025": {
       "agency": "ON",
       "lat": 50.2274,
@@ -4093,7 +4100,7 @@
       "lat": 50.1342,
       "lon": -87.1168,
       "size": 2,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_ON_NIP_FIRE_068": {
       "agency": "ON",
@@ -6237,6 +6244,13 @@
       "size": 32,
       "stage": "OC"
     },
+    "2026_SK_26DB-RODERICK": {
+      "agency": "SK",
+      "lat": 56.01382,
+      "lon": -102.23128,
+      "size": 11.3,
+      "stage": "OC"
+    },
     "2026_SK_26DB-WINTEGO": {
       "agency": "SK",
       "lat": 55.47022,
@@ -6432,13 +6446,6 @@
       "lon": -104.71385,
       "size": 2615,
       "stage": "OC"
-    },
-    "2026_SK_26LF-GULL": {
-      "agency": "SK",
-      "lat": 53.94864,
-      "lon": -105.01868,
-      "size": 9,
-      "stage": "UC"
     },
     "2026_SK_26LR-SANDY": {
       "agency": "SK",
@@ -6696,6 +6703,6 @@
   "firms_last_watermark": "2026-07-19 850",
   "last_alert_slot": [
     "2026-07-19",
-    2
+    3
   ]
 }
