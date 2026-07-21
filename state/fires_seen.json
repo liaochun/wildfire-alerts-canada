@@ -1766,7 +1766,7 @@
     },
     "2026_MB_MB-NO210": {
       "agency": "MB",
-      "lat": 54.83028,
+      "lat": 54.40528,
       "lon": -98.35278,
       "size": 0.1,
       "stage": "OC"
@@ -3626,6 +3626,13 @@
       "size": 125,
       "stage": "OC"
     },
+    "2026_ON_FOR_FIRE_045": {
+      "agency": "ON",
+      "lat": 49.1752,
+      "lon": -93.5069,
+      "size": 0.1,
+      "stage": "OC"
+    },
     "2026_ON_NIP_FIRE_012": {
       "agency": "ON",
       "lat": 53.5811,
@@ -3757,7 +3764,7 @@
       "lat": 50.827,
       "lon": -87.7475,
       "size": 4,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_ON_NIP_FIRE_045": {
       "agency": "ON",
@@ -3884,13 +3891,6 @@
       "lon": -85.7258,
       "size": 0.1,
       "stage": "OC"
-    },
-    "2026_ON_NIP_FIRE_067": {
-      "agency": "ON",
-      "lat": 50.1342,
-      "lon": -87.1168,
-      "size": 2,
-      "stage": "UC"
     },
     "2026_ON_NIP_FIRE_068": {
       "agency": "ON",
@@ -4541,13 +4541,6 @@
       "lat": 49.6404,
       "lon": -85.2873,
       "size": 2.3,
-      "stage": "UC"
-    },
-    "2026_ON_WAW_FIRE_023": {
-      "agency": "ON",
-      "lat": 49.0877,
-      "lon": -86.2843,
-      "size": 1.5,
       "stage": "UC"
     },
     "2026_ON_WAW_FIRE_025": {
@@ -5691,13 +5684,6 @@
       "size": 12.8,
       "stage": "OC"
     },
-    "2026_QC_616": {
-      "agency": "QC",
-      "lat": 46.7153,
-      "lon": -71.6675,
-      "size": 0.3,
-      "stage": "UC"
-    },
     "2026_SK_26BN-DIGBEE": {
       "agency": "SK",
       "lat": 57.0615,
@@ -5908,13 +5894,6 @@
       "size": 23.7,
       "stage": "OC"
     },
-    "2026_SK_26LA-RED": {
-      "agency": "SK",
-      "lat": 57.92667,
-      "lon": -103.222,
-      "size": 5269,
-      "stage": "OC"
-    },
     "2026_SK_26LA-RIVER": {
       "agency": "SK",
       "lat": 56.08705,
@@ -5997,7 +5976,7 @@
       "lat": 54.57838,
       "lon": -104.71385,
       "size": 2615,
-      "stage": "OC"
+      "stage": "UC"
     },
     "2026_SK_26LR-SANDY": {
       "agency": "SK",
@@ -6088,20 +6067,6 @@
       "lat": 59.77768,
       "lon": -102.80398,
       "size": 100,
-      "stage": "OC"
-    },
-    "2026_SK_26SR-THERI": {
-      "agency": "SK",
-      "lat": 58.27855,
-      "lon": -104.62478,
-      "size": 1656,
-      "stage": "OC"
-    },
-    "2026_SK_26SR-WARD": {
-      "agency": "SK",
-      "lat": 58.33433,
-      "lon": -104.869,
-      "size": 228,
       "stage": "OC"
     },
     "2026_YT_2026DA008": {
@@ -6269,6 +6234,6 @@
   "firms_last_watermark": "2026-07-21 952",
   "last_alert_slot": [
     "2026-07-21",
-    2
+    4
   ]
 }
