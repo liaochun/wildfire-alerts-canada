@@ -193,7 +193,7 @@
       "agency": "BC",
       "lat": 51.095,
       "lon": -121.42428,
-      "size": 2122.5,
+      "size": 2473.6,
       "stage": "OC"
     },
     "2026_BC_2026-C50929": {
@@ -797,13 +797,6 @@
       "lon": -118.37515,
       "size": 0.13,
       "stage": "UC"
-    },
-    "2026_BC_2026-N61278": {
-      "agency": "BC",
-      "lat": 49.51632,
-      "lon": -118.48093,
-      "size": 0.01,
-      "stage": "OC"
     },
     "2026_BC_2026-N61281": {
       "agency": "BC",
@@ -4627,6 +4620,13 @@
       "size": 0.1,
       "stage": "OC"
     },
+    "2026_ON_SUD_FIRE_033": {
+      "agency": "ON",
+      "lat": 45.7799,
+      "lon": -80.0598,
+      "size": 0.1,
+      "stage": "OC"
+    },
     "2026_ON_THU_FIRE_036": {
       "agency": "ON",
       "lat": 50.6828,
@@ -5716,7 +5716,7 @@
       "agency": "SK",
       "lat": 57.0615,
       "lon": -108.5394,
-      "size": 2779,
+      "size": 5420,
       "stage": "OC"
     },
     "2026_SK_26BN-FISSION": {
@@ -5975,7 +5975,7 @@
       "agency": "SK",
       "lat": 57.34561,
       "lon": -106.79094,
-      "size": 10.1,
+      "size": 9,
       "stage": "OC"
     },
     "2026_SK_26LX-MCDONALD": {
@@ -6178,6 +6178,6 @@
   "firms_last_watermark": "2026-07-29 902",
   "last_alert_slot": [
     "2026-07-29",
-    2
+    3
   ]
 }
