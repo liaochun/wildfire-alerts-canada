@@ -4697,13 +4697,6 @@
       "size": 0.5,
       "stage": "BH"
     },
-    "2026_ON_THU_FIRE_067": {
-      "agency": "ON",
-      "lat": 49.7556,
-      "lon": -89.415,
-      "size": 0.1,
-      "stage": "UC"
-    },
     "2026_ON_TIM_FIRE_009": {
       "agency": "ON",
       "lat": 47.7841,
@@ -5726,6 +5719,13 @@
       "size": 0.1,
       "stage": "UC"
     },
+    "2026_QC_628": {
+      "agency": "QC",
+      "lat": 48.2897,
+      "lon": -68.9542,
+      "size": 0,
+      "stage": "UC"
+    },
     "2026_SK_26BN-BAKERS": {
       "agency": "SK",
       "lat": 56.65389,
@@ -6199,6 +6199,6 @@
   "firms_last_watermark": "2026-07-29 902",
   "last_alert_slot": [
     "2026-07-29",
-    0
+    1
   ]
 }
