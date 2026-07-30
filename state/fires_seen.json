@@ -438,7 +438,7 @@
       "agency": "BC",
       "lat": 49.12417,
       "lon": -115.59342,
-      "size": 2.1,
+      "size": 10.8,
       "stage": "OC"
     },
     "2026_BC_2026-N20809": {
@@ -3871,13 +3871,6 @@
       "size": 0.3,
       "stage": "OC"
     },
-    "2026_ON_KEN_FIRE_026": {
-      "agency": "ON",
-      "lat": 49.621,
-      "lon": -94.9713,
-      "size": 0.1,
-      "stage": "OC"
-    },
     "2026_ON_NIP_FIRE_012": {
       "agency": "ON",
       "lat": 53.5811,
@@ -6143,6 +6136,6 @@
   "firms_last_watermark": "2026-07-30 843",
   "last_alert_slot": [
     "2026-07-30",
-    2
+    4
   ]
 }
