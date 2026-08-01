@@ -597,7 +597,7 @@
     },
     "2026_BC_2026-N51353": {
       "agency": "BC",
-      "lat": 49.02858,
+      "lat": 49.02812,
       "lon": -117.87272,
       "size": 0.009,
       "stage": "OC"
@@ -844,13 +844,6 @@
       "agency": "BC",
       "lat": 49.88837,
       "lon": -123.33437,
-      "size": 0.009,
-      "stage": "UC"
-    },
-    "2026_BC_2026-V31352": {
-      "agency": "BC",
-      "lat": 49.82597,
-      "lon": -123.20675,
       "size": 0.009,
       "stage": "UC"
     },
@@ -3430,19 +3423,12 @@
       "size": 1710,
       "stage": "BH"
     },
-    "2026_ON_DRY_FIRE_055": {
-      "agency": "ON",
-      "lat": 49.3331,
-      "lon": -91.5058,
-      "size": 0.1,
-      "stage": "UC"
-    },
     "2026_ON_DRY_FIRE_056": {
       "agency": "ON",
       "lat": 49.269,
       "lon": -91.4253,
       "size": 0.1,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_ON_DRY_FIRE_058": {
       "agency": "ON",
@@ -3463,7 +3449,7 @@
       "lat": 49.8455,
       "lon": -92.5333,
       "size": 0.1,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_ON_FOR_FIRE_013": {
       "agency": "ON",
@@ -4244,8 +4230,8 @@
     },
     "2026_ON_SLK_FIRE_110": {
       "agency": "ON",
-      "lat": 50.2594,
-      "lon": -92.577,
+      "lat": 50.2595,
+      "lon": -92.5756,
       "size": 0.1,
       "stage": "OC"
     },
@@ -4283,13 +4269,6 @@
       "lon": -82.3625,
       "size": 0.4,
       "stage": "BH"
-    },
-    "2026_ON_SUD_FIRE_038": {
-      "agency": "ON",
-      "lat": 47.0007,
-      "lon": -80.7445,
-      "size": 0.4,
-      "stage": "UC"
     },
     "2026_ON_SUD_FIRE_040": {
       "agency": "ON",
@@ -4373,6 +4352,13 @@
       "lat": 48.7669,
       "lon": -90.5877,
       "size": 0.3,
+      "stage": "OC"
+    },
+    "2026_ON_THU_FIRE_070": {
+      "agency": "ON",
+      "lat": 50.2307,
+      "lon": -89.732,
+      "size": 0.7,
       "stage": "OC"
     },
     "2026_ON_TIM_FIRE_009": {
@@ -5486,7 +5472,7 @@
       "lat": 55.49388,
       "lon": -105.81831,
       "size": 2,
-      "stage": "UC"
+      "stage": "OC"
     },
     "2026_SK_26LA-FLEMING": {
       "agency": "SK",
@@ -5521,6 +5507,13 @@
       "lat": 56.10717,
       "lon": -102.9605,
       "size": 11350,
+      "stage": "OC"
+    },
+    "2026_SK_26LA-MEYERS": {
+      "agency": "SK",
+      "lat": 55.86247,
+      "lon": -105.86455,
+      "size": 0.5,
       "stage": "OC"
     },
     "2026_SK_26LA-MOOSE": {
@@ -5800,6 +5793,6 @@
   "firms_last_watermark": "2026-08-01 947",
   "last_alert_slot": [
     "2026-08-01",
-    7
+    8
   ]
 }
