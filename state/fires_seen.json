@@ -89,7 +89,7 @@
       "lat": 55.92432,
       "lon": -110.69165,
       "size": 0.1,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_BC_2026-C10467": {
       "agency": "BC",
@@ -774,7 +774,7 @@
       "agency": "BC",
       "lat": 48.99927,
       "lon": -121.02033,
-      "size": 533.1,
+      "size": 1575,
       "stage": "OC"
     },
     "2026_BC_2026-V10898": {
@@ -3399,7 +3399,7 @@
       "agency": "ON",
       "lat": 49.6301,
       "lon": -90.098,
-      "size": 23368,
+      "size": 30758,
       "stage": "OC"
     },
     "2026_ON_DRY_FIRE_036": {
@@ -3435,6 +3435,13 @@
       "lat": 49.1973,
       "lon": -91.4413,
       "size": 0.1,
+      "stage": "OC"
+    },
+    "2026_ON_DRY_FIRE_060": {
+      "agency": "ON",
+      "lat": 50.0081,
+      "lon": -93.2155,
+      "size": 1,
       "stage": "OC"
     },
     "2026_ON_FOR_FIRE_013": {
@@ -3504,6 +3511,13 @@
       "agency": "ON",
       "lat": 49.2203,
       "lon": -92.8949,
+      "size": 0.1,
+      "stage": "OC"
+    },
+    "2026_ON_FOR_FIRE_058": {
+      "agency": "ON",
+      "lat": 49.2419,
+      "lon": -93.1545,
       "size": 0.1,
       "stage": "OC"
     },
@@ -4218,7 +4232,7 @@
       "agency": "ON",
       "lat": 50.5003,
       "lon": -92.5396,
-      "size": 0.3,
+      "size": 0.1,
       "stage": "OC"
     },
     "2026_ON_SUD_FIRE_034": {
@@ -4303,13 +4317,6 @@
       "lat": 50.9699,
       "lon": -89.9262,
       "size": 0.5,
-      "stage": "OC"
-    },
-    "2026_ON_THU_FIRE_054": {
-      "agency": "ON",
-      "lat": 49.7549,
-      "lon": -89.9496,
-      "size": 7390,
       "stage": "OC"
     },
     "2026_ON_THU_FIRE_056": {
@@ -5402,7 +5409,7 @@
       "lat": 54.44548,
       "lon": -102.14043,
       "size": 0.5,
-      "stage": "OC"
+      "stage": "UC"
     },
     "2026_SK_26LA-BANDUR": {
       "agency": "SK",
@@ -5493,7 +5500,7 @@
       "lat": 55.54285,
       "lon": -104.30327,
       "size": 1,
-      "stage": "OC"
+      "stage": "UC"
     },
     "2026_SK_26LA-MCDONALD": {
       "agency": "SK",
@@ -5779,6 +5786,6 @@
   "firms_last_watermark": "2026-08-01 947",
   "last_alert_slot": [
     "2026-08-01",
-    3
+    4
   ]
 }
