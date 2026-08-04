@@ -312,7 +312,7 @@
       "agency": "BC",
       "lat": 50.30653,
       "lon": -119.41278,
-      "size": 2603.7,
+      "size": 2852,
       "stage": "OC"
     },
     "2026_BC_2026-K41355": {
@@ -2980,13 +2980,6 @@
       "lat": 48.4183,
       "lon": -92.264,
       "size": 0.2,
-      "stage": "OC"
-    },
-    "2026_ON_KEN_FIRE_027": {
-      "agency": "ON",
-      "lat": 50.0232,
-      "lon": -94.796,
-      "size": 1.6,
       "stage": "UC"
     },
     "2026_ON_NIP_FIRE_012": {
@@ -3274,7 +3267,7 @@
       "lat": 53.4784,
       "lon": -88.6477,
       "size": 1,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_ON_NIP_FIRE_094": {
       "agency": "ON",
@@ -4543,6 +4536,20 @@
       "size": 18.8,
       "stage": "OC"
     },
+    "2026_QC_639": {
+      "agency": "QC",
+      "lat": 55.9617,
+      "lon": -75.2772,
+      "size": 0.2,
+      "stage": "OC"
+    },
+    "2026_QC_640": {
+      "agency": "QC",
+      "lat": 56.1803,
+      "lon": -75.2639,
+      "size": 0.4,
+      "stage": "OC"
+    },
     "2026_SK_26BN-BAKERS": {
       "agency": "SK",
       "lat": 56.65389,
@@ -4676,13 +4683,6 @@
       "size": 0.1,
       "stage": "OC"
     },
-    "2026_SK_26LA-HAM": {
-      "agency": "SK",
-      "lat": 57.52928,
-      "lon": -104.57315,
-      "size": 4,
-      "stage": "OC"
-    },
     "2026_SK_26LA-MCDONALD": {
       "agency": "SK",
       "lat": 56.10717,
@@ -4716,13 +4716,6 @@
       "lat": 56.97405,
       "lon": -102.65193,
       "size": 50,
-      "stage": "OC"
-    },
-    "2026_SK_26LA-SANDY": {
-      "agency": "SK",
-      "lat": 57.09847,
-      "lon": -104.9167,
-      "size": 295,
       "stage": "OC"
     },
     "2026_SK_26LA-SEIR01": {
@@ -4760,25 +4753,11 @@
       "size": 0.5,
       "stage": "OC"
     },
-    "2026_SK_26LA-TOEWS": {
-      "agency": "SK",
-      "lat": 57.2978,
-      "lon": -105.04723,
-      "size": 1500,
-      "stage": "OC"
-    },
     "2026_SK_26LA-TOPP": {
       "agency": "SK",
       "lat": 55.96822,
       "lon": -105.27828,
       "size": 51.2,
-      "stage": "OC"
-    },
-    "2026_SK_26LA-WALKER": {
-      "agency": "SK",
-      "lat": 56.52694,
-      "lon": -106.00083,
-      "size": 50,
       "stage": "OC"
     },
     "2026_SK_26LA-WATTS": {
@@ -4985,9 +4964,9 @@
       "stage": "OC"
     }
   },
-  "firms_last_watermark": "2026-08-04 1837",
+  "firms_last_watermark": "2026-08-04 2016",
   "last_alert_slot": [
     "2026-08-04",
-    3
+    5
   ]
 }
