@@ -3556,13 +3556,6 @@
       "size": 0.5,
       "stage": "OC"
     },
-    "2026_ON_THU_FIRE_076": {
-      "agency": "ON",
-      "lat": 48.9457,
-      "lon": -89.4248,
-      "size": 0.2,
-      "stage": "BH"
-    },
     "2026_ON_THU_FIRE_077": {
       "agency": "ON",
       "lat": 50.1377,
@@ -4470,6 +4463,6 @@
   "firms_last_watermark": "2026-08-07 934",
   "last_alert_slot": [
     "2026-08-07",
-    1
+    2
   ]
 }
