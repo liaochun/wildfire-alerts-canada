@@ -175,6 +175,13 @@
       "size": 0.65,
       "stage": "UC"
     },
+    "2026_BC_2026-C41483": {
+      "agency": "BC",
+      "lat": 52.06018,
+      "lon": -120.5667,
+      "size": 0.009,
+      "stage": "OC"
+    },
     "2026_BC_2026-C50929": {
       "agency": "BC",
       "lat": 52.68845,
@@ -956,8 +963,8 @@
       "agency": "NB",
       "lat": 45.84275,
       "lon": -67.38623,
-      "size": 2,
-      "stage": "OC"
+      "size": 1.3,
+      "stage": "UC"
     },
     "2026_NL_652": {
       "agency": "NL",
@@ -3563,13 +3570,6 @@
       "size": 0.5,
       "stage": "OC"
     },
-    "2026_ON_THU_FIRE_077": {
-      "agency": "ON",
-      "lat": 50.1377,
-      "lon": -89.7869,
-      "size": 0.1,
-      "stage": "BH"
-    },
     "2026_ON_TIM_FIRE_009": {
       "agency": "ON",
       "lat": 47.7841,
@@ -3969,13 +3969,6 @@
       "size": 6113.5,
       "stage": "OC"
     },
-    "2026_QC_453": {
-      "agency": "QC",
-      "lat": 53.1625,
-      "lon": -71.1578,
-      "size": 2789.9,
-      "stage": "OC"
-    },
     "2026_QC_459": {
       "agency": "QC",
       "lat": 53.4958,
@@ -4171,13 +4164,6 @@
       "lon": -102.6901,
       "size": 11537,
       "stage": "OC"
-    },
-    "2026_SK_26LA-BANDUR": {
-      "agency": "SK",
-      "lat": 55.72825,
-      "lon": -104.63357,
-      "size": 0.5,
-      "stage": "UC"
     },
     "2026_SK_26LA-BOISE": {
       "agency": "SK",
@@ -4470,6 +4456,6 @@
   "firms_last_watermark": "2026-08-07 934",
   "last_alert_slot": [
     "2026-08-07",
-    3
+    4
   ]
 }
