@@ -89,7 +89,7 @@
       "lat": 53.16905,
       "lon": -123.98987,
       "size": 1588,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_BC_2026-C10988": {
       "agency": "BC",
@@ -202,6 +202,13 @@
       "lon": -119.239,
       "size": 0.015,
       "stage": "UC"
+    },
+    "2026_BC_2026-G31495": {
+      "agency": "BC",
+      "lat": 53.35725,
+      "lon": -120.40267,
+      "size": 1,
+      "stage": "OC"
     },
     "2026_BC_2026-G80488": {
       "agency": "BC",
@@ -606,7 +613,7 @@
       "agency": "BC",
       "lat": 50.49843,
       "lon": -117.19017,
-      "size": 109,
+      "size": 500,
       "stage": "OC"
     },
     "2026_BC_2026-N71327": {
@@ -740,7 +747,7 @@
       "lat": 49.4263,
       "lon": -121.4598,
       "size": 1,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_BC_2026-V11496": {
       "agency": "BC",
@@ -949,13 +956,6 @@
       "agency": "NB",
       "lat": 46.02075,
       "lon": -64.98855,
-      "size": 0.1,
-      "stage": "UC"
-    },
-    "2026_NB_2026333": {
-      "agency": "NB",
-      "lat": 47.40503,
-      "lon": -66.51654,
       "size": 0.1,
       "stage": "UC"
     },
@@ -2952,21 +2952,21 @@
       "lat": 50.3266,
       "lon": -87.8113,
       "size": 911.9,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_ON_NIP_FIRE_038": {
       "agency": "ON",
       "lat": 50.4338,
       "lon": -87.4287,
       "size": 488.8,
-      "stage": "OC"
+      "stage": "UC"
     },
     "2026_ON_NIP_FIRE_039": {
       "agency": "ON",
       "lat": 50.3879,
       "lon": -87.4437,
       "size": 24.5,
-      "stage": "OC"
+      "stage": "UC"
     },
     "2026_ON_NIP_FIRE_040": {
       "agency": "ON",
@@ -3990,13 +3990,6 @@
       "size": 22.3,
       "stage": "OC"
     },
-    "2026_QC_612": {
-      "agency": "QC",
-      "lat": 54.4036,
-      "lon": -76.9739,
-      "size": 40.2,
-      "stage": "OC"
-    },
     "2026_QC_632": {
       "agency": "QC",
       "lat": 53.0461,
@@ -4393,6 +4386,6 @@
   "firms_last_watermark": "2026-08-08 915",
   "last_alert_slot": [
     "2026-08-08",
-    4
+    5
   ]
 }
