@@ -3493,6 +3493,13 @@
       "size": 1,
       "stage": "OC"
     },
+    "2026_ON_SUD_FIRE_047": {
+      "agency": "ON",
+      "lat": 46.9462,
+      "lon": -80.6348,
+      "size": 0.1,
+      "stage": "OC"
+    },
     "2026_ON_THU_FIRE_036": {
       "agency": "ON",
       "lat": 50.6828,
@@ -3540,13 +3547,6 @@
       "lat": 47.7841,
       "lon": -81.7268,
       "size": 3151,
-      "stage": "UC"
-    },
-    "2026_ON_TIM_FIRE_024": {
-      "agency": "ON",
-      "lat": 47.6032,
-      "lon": -81.8574,
-      "size": 0.7,
       "stage": "UC"
     },
     "2026_ON_WAW_FIRE_015": {
@@ -3784,7 +3784,7 @@
       "agency": "QC",
       "lat": 58.0272,
       "lon": -67.0631,
-      "size": 2912.4,
+      "size": 6657.9,
       "stage": "OC"
     },
     "2026_QC_304": {
@@ -4030,6 +4030,13 @@
       "lat": 55.97797,
       "lon": -102.6901,
       "size": 11537,
+      "stage": "OC"
+    },
+    "2026_SK_26DB-ROMULD": {
+      "agency": "SK",
+      "lat": 55.56575,
+      "lon": -103.12385,
+      "size": 0.1,
       "stage": "OC"
     },
     "2026_SK_26LA-BOISE": {
@@ -4372,6 +4379,6 @@
   "firms_last_watermark": "2026-08-09 856",
   "last_alert_slot": [
     "2026-08-09",
-    2
+    3
   ]
 }
