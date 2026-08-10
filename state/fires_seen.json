@@ -746,7 +746,7 @@
       "agency": "BC",
       "lat": 49.37372,
       "lon": -122.10578,
-      "size": 15,
+      "size": 18,
       "stage": "OC"
     },
     "2026_BC_2026-V11502": {
@@ -4071,7 +4071,7 @@
       "agency": "SK",
       "lat": 55.06668,
       "lon": -104.66298,
-      "size": 12516,
+      "size": 12515,
       "stage": "UC"
     },
     "2026_SK_26LA-FLEMING": {
@@ -4288,8 +4288,8 @@
       "agency": "YT",
       "lat": 60.42972,
       "lon": -133.5895,
-      "size": 0,
-      "stage": "OC"
+      "size": 0.01,
+      "stage": "UC"
     },
     "2026_YT_2026WL006": {
       "agency": "YT",
@@ -4351,6 +4351,6 @@
   "firms_last_watermark": "2026-08-09 856",
   "last_alert_slot": [
     "2026-08-09",
-    12
+    13
   ]
 }
