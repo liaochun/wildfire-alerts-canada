@@ -590,10 +590,10 @@
     },
     "2026_BC_2026-N61520": {
       "agency": "BC",
-      "lat": 49.44788,
+      "lat": 49.44063,
       "lon": -118.39365,
-      "size": 0.009,
-      "stage": "OC"
+      "size": 0.3,
+      "stage": "BH"
     },
     "2026_BC_2026-N71086": {
       "agency": "BC",
@@ -831,20 +831,6 @@
       "lat": 50.09528,
       "lon": -95.27833,
       "size": 0.1,
-      "stage": "UC"
-    },
-    "2026_MB_MB-NO019": {
-      "agency": "MB",
-      "lat": 56.33917,
-      "lon": -99.71333,
-      "size": 9278.4,
-      "stage": "UC"
-    },
-    "2026_MB_MB-NO050": {
-      "agency": "MB",
-      "lat": 56.665,
-      "lon": -100.87222,
-      "size": 7830,
       "stage": "UC"
     },
     "2026_MB_MB-NO070": {
@@ -2828,13 +2814,6 @@
       "size": 1.2,
       "stage": "OC"
     },
-    "2026_ON_FOR_FIRE_063": {
-      "agency": "ON",
-      "lat": 49.1415,
-      "lon": -91.1921,
-      "size": 0.2,
-      "stage": "UC"
-    },
     "2026_ON_FOR_FIRE_064": {
       "agency": "ON",
       "lat": 49.1331,
@@ -3001,13 +2980,6 @@
       "lat": 51.2501,
       "lon": -88.3103,
       "size": 1,
-      "stage": "OC"
-    },
-    "2026_ON_NIP_FIRE_061": {
-      "agency": "ON",
-      "lat": 51.1565,
-      "lon": -87.8229,
-      "size": 36,
       "stage": "OC"
     },
     "2026_ON_NIP_FIRE_069": {
@@ -3500,13 +3472,6 @@
       "size": 1,
       "stage": "OC"
     },
-    "2026_ON_SUD_FIRE_047": {
-      "agency": "ON",
-      "lat": 46.9462,
-      "lon": -80.6348,
-      "size": 0.1,
-      "stage": "UC"
-    },
     "2026_ON_THU_FIRE_036": {
       "agency": "ON",
       "lat": 50.6828,
@@ -3744,20 +3709,6 @@
       "lon": -113.0924,
       "size": 760,
       "stage": "UC"
-    },
-    "2026_PC_2026WP2": {
-      "agency": "PC",
-      "lat": 57.1383,
-      "lon": -92.9013,
-      "size": 30,
-      "stage": "OC"
-    },
-    "2026_PC_2026WP3": {
-      "agency": "PC",
-      "lat": 58.46,
-      "lon": -93.7,
-      "size": 65,
-      "stage": "OC"
     },
     "2026_QC_215": {
       "agency": "QC",
@@ -4067,13 +4018,6 @@
       "size": 11028,
       "stage": "UC"
     },
-    "2026_SK_26LA-MOOSE": {
-      "agency": "SK",
-      "lat": 56.2396,
-      "lon": -104.30804,
-      "size": 2677,
-      "stage": "OC"
-    },
     "2026_SK_26LA-OLSON": {
       "agency": "SK",
       "lat": 55.88383,
@@ -4330,6 +4274,6 @@
   "firms_last_watermark": "2026-08-10 837",
   "last_alert_slot": [
     "2026-08-10",
-    2
+    3
   ]
 }
