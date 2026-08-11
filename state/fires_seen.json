@@ -182,13 +182,6 @@
       "size": 1,
       "stage": "BH"
     },
-    "2026_BC_2026-G31515": {
-      "agency": "BC",
-      "lat": 53.5118,
-      "lon": -120.60458,
-      "size": 0.01,
-      "stage": "UC"
-    },
     "2026_BC_2026-G80488": {
       "agency": "BC",
       "lat": 57.39345,
@@ -746,7 +739,7 @@
       "agency": "BC",
       "lat": 49.37372,
       "lon": -122.10578,
-      "size": 18,
+      "size": 13.36,
       "stage": "OC"
     },
     "2026_BC_2026-V11502": {
@@ -2870,25 +2863,11 @@
       "size": 1237,
       "stage": "OC"
     },
-    "2026_ON_NIP_FIRE_051": {
-      "agency": "ON",
-      "lat": 50.502,
-      "lon": -86.5268,
-      "size": 10,
-      "stage": "OC"
-    },
     "2026_ON_NIP_FIRE_052": {
       "agency": "ON",
       "lat": 50.4924,
       "lon": -86.386,
       "size": 200,
-      "stage": "OC"
-    },
-    "2026_ON_NIP_FIRE_053": {
-      "agency": "ON",
-      "lat": 50.448,
-      "lon": -86.5274,
-      "size": 2,
       "stage": "OC"
     },
     "2026_ON_NIP_FIRE_055": {
@@ -3451,6 +3430,13 @@
       "size": 0.1,
       "stage": "UC"
     },
+    "2026_ON_THU_FIRE_080": {
+      "agency": "ON",
+      "lat": 48.7538,
+      "lon": -90.1995,
+      "size": 0.1,
+      "stage": "OC"
+    },
     "2026_ON_TIM_FIRE_009": {
       "agency": "ON",
       "lat": 47.7841,
@@ -3639,6 +3625,13 @@
       "lon": -113.0924,
       "size": 760,
       "stage": "UC"
+    },
+    "2026_PC_2026YO5": {
+      "agency": "PC",
+      "lat": 51.4865,
+      "lon": -116.7147,
+      "size": 0.01,
+      "stage": "OC"
     },
     "2026_QC_215": {
       "agency": "QC",
@@ -4025,13 +4018,6 @@
       "size": 15686.2,
       "stage": "OC"
     },
-    "2026_SK_26SF-DITCH02": {
-      "agency": "SK",
-      "lat": 49.98107,
-      "lon": -109.37627,
-      "size": 0.1,
-      "stage": "UC"
-    },
     "2026_YT_2026BC001": {
       "agency": "YT",
       "lat": 62.60649,
@@ -4218,6 +4204,6 @@
   "firms_last_watermark": "2026-08-11 959",
   "last_alert_slot": [
     "2026-08-11",
-    7
+    8
   ]
 }
