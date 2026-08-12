@@ -3395,13 +3395,6 @@
       "size": 0.2,
       "stage": "UC"
     },
-    "2026_ON_SUD_FIRE_052": {
-      "agency": "ON",
-      "lat": 46.7345,
-      "lon": -80.4766,
-      "size": 0.2,
-      "stage": "UC"
-    },
     "2026_ON_THU_FIRE_036": {
       "agency": "ON",
       "lat": 50.6828,
@@ -4225,6 +4218,6 @@
   "firms_last_watermark": "2026-08-12 943",
   "last_alert_slot": [
     "2026-08-12",
-    1
+    2
   ]
 }
