@@ -2695,13 +2695,6 @@
       "size": 15,
       "stage": "OC"
     },
-    "2026_ON_COC_FIRE_055": {
-      "agency": "ON",
-      "lat": 49.1684,
-      "lon": -80.1144,
-      "size": 5,
-      "stage": "UC"
-    },
     "2026_ON_DRY_FIRE_034": {
       "agency": "ON",
       "lat": 49.9828,
@@ -2721,13 +2714,6 @@
       "lat": 49.2371,
       "lon": -91.8508,
       "size": 1710,
-      "stage": "UC"
-    },
-    "2026_ON_DRY_FIRE_063": {
-      "agency": "ON",
-      "lat": 50.0407,
-      "lon": -92.9992,
-      "size": 0.2,
       "stage": "UC"
     },
     "2026_ON_FOR_FIRE_013": {
@@ -4197,6 +4183,6 @@
   "firms_last_watermark": "2026-08-13 922",
   "last_alert_slot": [
     "2026-08-13",
-    1
+    2
   ]
 }
