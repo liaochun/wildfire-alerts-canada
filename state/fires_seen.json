@@ -3911,7 +3911,7 @@
       "lat": 55.28828,
       "lon": -101.90795,
       "size": 20113,
-      "stage": "UC"
+      "stage": "OC"
     },
     "2026_SK_26DB-MADDEN": {
       "agency": "SK",
@@ -4197,6 +4197,6 @@
   "firms_last_watermark": "2026-08-13 922",
   "last_alert_slot": [
     "2026-08-13",
-    0
+    1
   ]
 }
