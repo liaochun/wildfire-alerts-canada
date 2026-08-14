@@ -3003,13 +3003,6 @@
       "size": 0.3,
       "stage": "OC"
     },
-    "2026_ON_NIP_FIRE_098": {
-      "agency": "ON",
-      "lat": 48.9269,
-      "lon": -87.2204,
-      "size": 0.1,
-      "stage": "UC"
-    },
     "2026_ON_RED_FIRE_016": {
       "agency": "ON",
       "lat": 53.6585,
@@ -3351,13 +3344,6 @@
       "lat": 46.9227,
       "lon": -80.7175,
       "size": 0.6,
-      "stage": "UC"
-    },
-    "2026_ON_SUD_FIRE_053": {
-      "agency": "ON",
-      "lat": 46.1716,
-      "lon": -80.6923,
-      "size": 1.2,
       "stage": "UC"
     },
     "2026_ON_THU_FIRE_036": {
@@ -4141,6 +4127,6 @@
   "firms_last_watermark": "2026-08-14 905",
   "last_alert_slot": [
     "2026-08-14",
-    1
+    2
   ]
 }
