@@ -340,7 +340,7 @@
       "agency": "BC",
       "lat": 50.28178,
       "lon": -121.78625,
-      "size": 0.3,
+      "size": 1,
       "stage": "OC"
     },
     "2026_BC_2026-N10947": {
@@ -2552,8 +2552,8 @@
       "agency": "ON",
       "lat": 48.1409,
       "lon": -82.9683,
-      "size": 1,
-      "stage": "OC"
+      "size": 0.5,
+      "stage": "BH"
     },
     "2026_ON_COC_FIRE_007": {
       "agency": "ON",
@@ -3388,13 +3388,6 @@
       "size": 1,
       "stage": "OC"
     },
-    "2026_ON_SUD_FIRE_058": {
-      "agency": "ON",
-      "lat": 46.0338,
-      "lon": -81.243,
-      "size": 0.1,
-      "stage": "UC"
-    },
     "2026_ON_SUD_FIRE_059": {
       "agency": "ON",
       "lat": 47.031,
@@ -4190,6 +4183,6 @@
   "firms_last_watermark": "2026-08-16 826",
   "last_alert_slot": [
     "2026-08-16",
-    1
+    2
   ]
 }
