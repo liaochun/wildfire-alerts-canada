@@ -2520,6 +2520,20 @@
       "size": 4,
       "stage": "OC"
     },
+    "2026_NT_ZF082-26": {
+      "agency": "NT",
+      "lat": 62.03352,
+      "lon": -116.63542,
+      "size": 20,
+      "stage": "OC"
+    },
+    "2026_NT_ZF083-26": {
+      "agency": "NT",
+      "lat": 63.01698,
+      "lon": -118.52322,
+      "size": 1500,
+      "stage": "OC"
+    },
     "2026_ON_CHA_FIRE_025": {
       "agency": "ON",
       "lat": 48.1409,
@@ -3304,13 +3318,6 @@
       "size": 7190.1,
       "stage": "BH"
     },
-    "2026_ON_SLK_FIRE_091": {
-      "agency": "ON",
-      "lat": 50.7045,
-      "lon": -90.0775,
-      "size": 38,
-      "stage": "OC"
-    },
     "2026_ON_SLK_FIRE_092": {
       "agency": "ON",
       "lat": 51.1714,
@@ -3352,13 +3359,6 @@
       "lon": -89.0343,
       "size": 1,
       "stage": "OC"
-    },
-    "2026_ON_SUD_FIRE_059": {
-      "agency": "ON",
-      "lat": 47.031,
-      "lon": -82.4654,
-      "size": 0.1,
-      "stage": "UC"
     },
     "2026_ON_SUD_FIRE_060": {
       "agency": "ON",
@@ -3911,7 +3911,7 @@
       "lat": 55.06668,
       "lon": -104.66298,
       "size": 12516,
-      "stage": "UC"
+      "stage": "OC"
     },
     "2026_SK_26LA-MCDONALD": {
       "agency": "SK",
@@ -4155,6 +4155,6 @@
   "firms_last_watermark": "2026-08-17 947",
   "last_alert_slot": [
     "2026-08-17",
-    0
+    1
   ]
 }
