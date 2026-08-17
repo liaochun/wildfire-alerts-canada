@@ -3598,13 +3598,6 @@
       "size": 760,
       "stage": "UC"
     },
-    "2026_PC_2026YO5": {
-      "agency": "PC",
-      "lat": 51.4865,
-      "lon": -116.7147,
-      "size": 0.1,
-      "stage": "OC"
-    },
     "2026_QC_215": {
       "agency": "QC",
       "lat": 52.315,
@@ -3869,7 +3862,7 @@
       "lat": 55.18837,
       "lon": -102.92616,
       "size": 0.1,
-      "stage": "UC"
+      "stage": "OC"
     },
     "2026_SK_26DB-MADDEN": {
       "agency": "SK",
@@ -4155,6 +4148,6 @@
   "firms_last_watermark": "2026-08-17 947",
   "last_alert_slot": [
     "2026-08-17",
-    1
+    2
   ]
 }
