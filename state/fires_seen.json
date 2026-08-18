@@ -1537,8 +1537,8 @@
       "agency": "NT",
       "lat": 61.00592,
       "lon": -113.4768,
-      "size": 15,
-      "stage": "OC"
+      "size": 13,
+      "stage": "BH"
     },
     "2026_NT_VQ001-26": {
       "agency": "NT",
@@ -3434,15 +3434,15 @@
       "agency": "PC",
       "lat": 62.9988,
       "lon": -108.6513,
-      "size": 46,
-      "stage": "OC"
+      "size": 1313,
+      "stage": "UC"
     },
     "2026_PC_2026TH2": {
       "agency": "PC",
       "lat": 62.8916,
       "lon": -107.4796,
       "size": 14,
-      "stage": "OC"
+      "stage": "UC"
     },
     "2026_PC_2026WAFU1": {
       "agency": "PC",
@@ -4064,6 +4064,6 @@
   "firms_last_watermark": "2026-08-18 928",
   "last_alert_slot": [
     "2026-08-18",
-    0
+    1
   ]
 }
