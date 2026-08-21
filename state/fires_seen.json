@@ -3794,13 +3794,6 @@
       "size": 8963,
       "stage": "OC"
     },
-    "2026_SK_26LF-DOWD": {
-      "agency": "SK",
-      "lat": 54.57838,
-      "lon": -104.71385,
-      "size": 2615,
-      "stage": "UC"
-    },
     "2026_SK_26LX-CREE": {
       "agency": "SK",
       "lat": 57.45168,
@@ -3973,6 +3966,6 @@
   "firms_last_watermark": "2026-08-21 833",
   "last_alert_slot": [
     "2026-08-21",
-    0
+    1
   ]
 }
