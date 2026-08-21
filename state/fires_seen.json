@@ -124,7 +124,7 @@
       "lat": 52.52788,
       "lon": -120.9008,
       "size": 0.3,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_BC_2026-C40923": {
       "agency": "BC",
@@ -312,7 +312,7 @@
       "agency": "BC",
       "lat": 50.59857,
       "lon": -121.91853,
-      "size": 3576,
+      "size": 3650,
       "stage": "OC"
     },
     "2026_BC_2026-K70748": {
@@ -656,13 +656,6 @@
       "lat": 54.98605,
       "lon": -128.34782,
       "size": 293.48,
-      "stage": "UC"
-    },
-    "2026_BC_2026-R51693": {
-      "agency": "BC",
-      "lat": 54.67655,
-      "lon": -128.75075,
-      "size": 1.2,
       "stage": "UC"
     },
     "2026_BC_2026-R91718": {
@@ -3059,13 +3052,6 @@
       "size": 17248.1,
       "stage": "OC"
     },
-    "2026_ON_SLK_FIRE_003": {
-      "agency": "ON",
-      "lat": 54.4933,
-      "lon": -91.3665,
-      "size": 25,
-      "stage": "OC"
-    },
     "2026_ON_SLK_FIRE_005": {
       "agency": "ON",
       "lat": 51.3787,
@@ -3092,34 +3078,6 @@
       "lat": 52.7119,
       "lon": -90.7713,
       "size": 42,
-      "stage": "OC"
-    },
-    "2026_ON_SLK_FIRE_038": {
-      "agency": "ON",
-      "lat": 53.6775,
-      "lon": -91.5216,
-      "size": 77.5,
-      "stage": "OC"
-    },
-    "2026_ON_SLK_FIRE_039": {
-      "agency": "ON",
-      "lat": 53.6033,
-      "lon": -91.6315,
-      "size": 85.1,
-      "stage": "OC"
-    },
-    "2026_ON_SLK_FIRE_043": {
-      "agency": "ON",
-      "lat": 53.6577,
-      "lon": -91.4496,
-      "size": 6.3,
-      "stage": "OC"
-    },
-    "2026_ON_SLK_FIRE_048": {
-      "agency": "ON",
-      "lat": 54.4481,
-      "lon": -91.6189,
-      "size": 38,
       "stage": "OC"
     },
     "2026_ON_SLK_FIRE_049": {
@@ -3204,7 +3162,7 @@
       "lat": 51.2026,
       "lon": -90.026,
       "size": 3334,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_ON_SLK_FIRE_084": {
       "agency": "ON",
@@ -3295,7 +3253,7 @@
       "lat": 48.9048,
       "lon": -89.374,
       "size": 0.1,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_ON_TIM_FIRE_009": {
       "agency": "ON",
@@ -3987,6 +3945,6 @@
   "firms_last_watermark": "2026-08-21 833",
   "last_alert_slot": [
     "2026-08-21",
-    5
+    6
   ]
 }
