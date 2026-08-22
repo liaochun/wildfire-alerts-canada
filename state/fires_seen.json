@@ -2961,13 +2961,6 @@
       "size": 488.8,
       "stage": "UC"
     },
-    "2026_ON_NIP_FIRE_039": {
-      "agency": "ON",
-      "lat": 50.3879,
-      "lon": -87.4437,
-      "size": 24.5,
-      "stage": "UC"
-    },
     "2026_ON_NIP_FIRE_045": {
       "agency": "ON",
       "lat": 51.4711,
@@ -3980,6 +3973,6 @@
   "firms_last_watermark": "2026-08-22 954",
   "last_alert_slot": [
     "2026-08-22",
-    0
+    1
   ]
 }
