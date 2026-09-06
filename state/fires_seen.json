@@ -102,8 +102,8 @@
       "agency": "BC",
       "lat": 50.97912,
       "lon": -121.80867,
-      "size": 166131.906,
-      "stage": "OC"
+      "size": 165909.406,
+      "stage": "BH"
     },
     "2026_BC_2026-C50929": {
       "agency": "BC",
@@ -138,7 +138,7 @@
       "lat": 52.4223,
       "lon": -119.14187,
       "size": 0.002,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_BC_2026-G32165": {
       "agency": "BC",
@@ -271,7 +271,7 @@
       "lat": 49.61933,
       "lon": -120.91535,
       "size": 49.16,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_BC_2026-K70659": {
       "agency": "BC",
@@ -285,14 +285,14 @@
       "lat": 51.25133,
       "lon": -122.20717,
       "size": 61786,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_BC_2026-K71082": {
       "agency": "BC",
       "lat": 51.0397,
       "lon": -122.85758,
       "size": 34992,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_BC_2026-K71651": {
       "agency": "BC",
@@ -2639,6 +2639,13 @@
       "size": 1012.5,
       "stage": "OC"
     },
+    "2026_ON_COC_FIRE_057": {
+      "agency": "ON",
+      "lat": 49.4064,
+      "lon": -82.5298,
+      "size": 0.1,
+      "stage": "UC"
+    },
     "2026_ON_DRY_FIRE_034": {
       "agency": "ON",
       "lat": 49.9828,
@@ -2853,15 +2860,15 @@
       "agency": "ON",
       "lat": 49.5862,
       "lon": -87.2303,
-      "size": 0.3,
+      "size": 0.5,
       "stage": "OC"
     },
     "2026_ON_NIP_FIRE_111": {
       "agency": "ON",
       "lat": 49.7917,
       "lon": -86.581,
-      "size": 0.1,
-      "stage": "OC"
+      "size": 0.2,
+      "stage": "BH"
     },
     "2026_ON_RED_FIRE_019": {
       "agency": "ON",
@@ -3051,13 +3058,6 @@
       "lon": -89.9331,
       "size": 0.5,
       "stage": "OC"
-    },
-    "2026_ON_THU_FIRE_087": {
-      "agency": "ON",
-      "lat": 49.0098,
-      "lon": -89.7767,
-      "size": 0.1,
-      "stage": "UC"
     },
     "2026_ON_TIM_FIRE_009": {
       "agency": "ON",
@@ -3542,13 +3542,6 @@
       "size": 20113,
       "stage": "OC"
     },
-    "2026_SK_26DB-JOHNSON": {
-      "agency": "SK",
-      "lat": 55.45413,
-      "lon": -102.37032,
-      "size": 1,
-      "stage": "OC"
-    },
     "2026_SK_26DB-MADDEN": {
       "agency": "SK",
       "lat": 55.47993,
@@ -3721,6 +3714,6 @@
   "firms_last_watermark": "2026-09-05 852",
   "last_alert_slot": [
     "2026-09-05",
-    5
+    10
   ]
 }
