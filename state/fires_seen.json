@@ -3667,18 +3667,11 @@
       "lon": -134.94275,
       "size": 5,
       "stage": "OC"
-    },
-    "2026_YT_2026XY022": {
-      "agency": "YT",
-      "lat": 60.72902,
-      "lon": -135.10597,
-      "size": 0.1,
-      "stage": "UC"
     }
   },
   "firms_last_watermark": "2026-09-07 954",
   "last_alert_slot": [
     "2026-09-07",
-    8
+    10
   ]
 }
