@@ -2504,7 +2504,7 @@
       "lat": 47.8464,
       "lon": -83.8416,
       "size": 0.1,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_ON_COC_FIRE_019": {
       "agency": "ON",
@@ -2925,6 +2925,13 @@
       "lon": -81.7268,
       "size": 3151,
       "stage": "UC"
+    },
+    "2026_ON_WAW_FIRE_031": {
+      "agency": "ON",
+      "lat": 48.7126,
+      "lon": -85.7257,
+      "size": 0.1,
+      "stage": "OC"
     },
     "2026_PC_2026KO4": {
       "agency": "PC",
@@ -3567,6 +3574,6 @@
   "firms_last_watermark": "2026-09-09 915",
   "last_alert_slot": [
     "2026-09-09",
-    6
+    8
   ]
 }
