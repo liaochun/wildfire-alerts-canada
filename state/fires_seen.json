@@ -147,13 +147,6 @@
       "size": 67.18,
       "stage": "UC"
     },
-    "2026_BC_2026-K21312": {
-      "agency": "BC",
-      "lat": 51.38635,
-      "lon": -119.71578,
-      "size": 841.2,
-      "stage": "OC"
-    },
     "2026_BC_2026-K21744": {
       "agency": "BC",
       "lat": 52.50217,
@@ -875,75 +868,40 @@
       "size": 0.009,
       "stage": "UC"
     },
-    "2026_BC_2026-V81131": {
-      "agency": "BC",
-      "lat": 50.0455,
-      "lon": -126.19942,
-      "size": 1,
-      "stage": "BH"
-    },
-    "2026_BC_2026-V81680": {
-      "agency": "BC",
-      "lat": 49.95638,
-      "lon": -126.01405,
-      "size": 0.03,
-      "stage": "UC"
-    },
     "2026_BC_2026-V81682": {
       "agency": "BC",
       "lat": 49.91353,
       "lon": -125.94272,
       "size": 13.5,
-      "stage": "BH"
-    },
-    "2026_BC_2026-V81686": {
-      "agency": "BC",
-      "lat": 49.94975,
-      "lon": -125.764,
-      "size": 38,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_BC_2026-V81694": {
       "agency": "BC",
       "lat": 50.12982,
       "lon": -126.114,
       "size": 79.4,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_BC_2026-V91619": {
       "agency": "BC",
       "lat": 50.35982,
       "lon": -126.78395,
       "size": 45.5,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_BC_2026-V91654": {
       "agency": "BC",
       "lat": 49.98343,
       "lon": -126.38608,
       "size": 5.7,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_BC_2026-V91689": {
       "agency": "BC",
       "lat": 50.03487,
       "lon": -126.48072,
       "size": 105,
-      "stage": "BH"
-    },
-    "2026_BC_2026-V91863": {
-      "agency": "BC",
-      "lat": 50.746,
-      "lon": -126.43512,
-      "size": 0.009,
-      "stage": "BH"
-    },
-    "2026_BC_2026-V92010": {
-      "agency": "BC",
-      "lat": 51.1723,
-      "lon": -126.994,
-      "size": 3.29,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_BC_2026-VA1674": {
       "agency": "BC",
@@ -2973,7 +2931,7 @@
       "lat": 49.3898,
       "lon": -90.4402,
       "size": 7947,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_ON_THU_FIRE_060": {
       "agency": "ON",
@@ -2994,13 +2952,6 @@
       "lat": 47.7841,
       "lon": -81.7268,
       "size": 3151,
-      "stage": "UC"
-    },
-    "2026_ON_WAW_FIRE_015": {
-      "agency": "ON",
-      "lat": 47.2775,
-      "lon": -84.5896,
-      "size": 7,
       "stage": "UC"
     },
     "2026_PC_2026KO4": {
@@ -3641,9 +3592,9 @@
       "stage": "OC"
     }
   },
-  "firms_last_watermark": "2026-09-08 937",
+  "firms_last_watermark": "2026-09-09 915",
   "last_alert_slot": [
-    "2026-09-08",
-    10
+    "2026-09-09",
+    0
   ]
 }
