@@ -147,6 +147,13 @@
       "size": 0.015,
       "stage": "UC"
     },
+    "2026_BC_2026-G72203": {
+      "agency": "BC",
+      "lat": 55.76133,
+      "lon": -121.10853,
+      "size": 0.015,
+      "stage": "UC"
+    },
     "2026_BC_2026-G91077": {
       "agency": "BC",
       "lat": 58.65753,
@@ -166,7 +173,7 @@
       "lat": 50.56018,
       "lon": -118.30393,
       "size": 253,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_BC_2026-K42111": {
       "agency": "BC",
@@ -2597,27 +2604,6 @@
       "size": 254,
       "stage": "OC"
     },
-    "2026_ON_NIP_FIRE_032": {
-      "agency": "ON",
-      "lat": 51.3036,
-      "lon": -88.1841,
-      "size": 1811,
-      "stage": "OC"
-    },
-    "2026_ON_NIP_FIRE_037": {
-      "agency": "ON",
-      "lat": 50.3266,
-      "lon": -87.8113,
-      "size": 911.9,
-      "stage": "UC"
-    },
-    "2026_ON_NIP_FIRE_038": {
-      "agency": "ON",
-      "lat": 50.4338,
-      "lon": -87.4287,
-      "size": 488.8,
-      "stage": "UC"
-    },
     "2026_ON_NIP_FIRE_045": {
       "agency": "ON",
       "lat": 51.4711,
@@ -2646,20 +2632,6 @@
       "size": 200,
       "stage": "OC"
     },
-    "2026_ON_NIP_FIRE_069": {
-      "agency": "ON",
-      "lat": 51.3579,
-      "lon": -88.6064,
-      "size": 2142,
-      "stage": "OC"
-    },
-    "2026_ON_NIP_FIRE_070": {
-      "agency": "ON",
-      "lat": 51.072,
-      "lon": -88.8491,
-      "size": 1200,
-      "stage": "UC"
-    },
     "2026_ON_NIP_FIRE_074": {
       "agency": "ON",
       "lat": 52.6762,
@@ -2672,13 +2644,6 @@
       "lat": 51.9287,
       "lon": -86.0321,
       "size": 40,
-      "stage": "OC"
-    },
-    "2026_ON_NIP_FIRE_076": {
-      "agency": "ON",
-      "lat": 51.4613,
-      "lon": -87.4093,
-      "size": 150,
       "stage": "OC"
     },
     "2026_ON_NIP_FIRE_080": {
@@ -3504,6 +3469,6 @@
   "firms_last_watermark": "2026-09-10 858",
   "last_alert_slot": [
     "2026-09-10",
-    3
+    6
   ]
 }
