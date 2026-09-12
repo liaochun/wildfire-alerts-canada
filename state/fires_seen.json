@@ -2394,13 +2394,6 @@
       "size": 80,
       "stage": "OC"
     },
-    "2026_ON_CHA_FIRE_028": {
-      "agency": "ON",
-      "lat": 46.3418,
-      "lon": -82.6128,
-      "size": 0.1,
-      "stage": "OC"
-    },
     "2026_ON_COC_FIRE_019": {
       "agency": "ON",
       "lat": 54.8813,
@@ -3371,6 +3364,6 @@
   "firms_last_watermark": "2026-09-12 958",
   "last_alert_slot": [
     "2026-09-12",
-    6
+    8
   ]
 }
