@@ -2065,6 +2065,13 @@
       "size": 0.1,
       "stage": "OC"
     },
+    "2026_ON_NIP_FIRE_112": {
+      "agency": "ON",
+      "lat": 50.2421,
+      "lon": -86.9642,
+      "size": 0.1,
+      "stage": "OC"
+    },
     "2026_ON_RED_FIRE_023": {
       "agency": "ON",
       "lat": 52.1932,
@@ -2720,6 +2727,6 @@
   "firms_last_watermark": "2026-09-19 928",
   "last_alert_slot": [
     "2026-09-19",
-    4
+    6
   ]
 }
