@@ -697,7 +697,7 @@
       "agency": "BC",
       "lat": 48.48672,
       "lon": -123.7712,
-      "size": 210.4,
+      "size": 276,
       "stage": "OC"
     },
     "2026_BC_2026-V72237": {
@@ -768,7 +768,7 @@
       "lat": 52.11583,
       "lon": -98.95,
       "size": 0.1,
-      "stage": "OC"
+      "stage": "UC"
     },
     "2026_MB_MB-NO200": {
       "agency": "MB",
@@ -797,6 +797,13 @@
       "lon": -67.71103,
       "size": 2,
       "stage": "OC"
+    },
+    "2026_NL_521": {
+      "agency": "NL",
+      "lat": 49.0055,
+      "lon": -57.6998,
+      "size": 0.1,
+      "stage": "BH"
     },
     "2026_NT_FS011-26": {
       "agency": "NT",
@@ -2661,9 +2668,9 @@
       "stage": "OC"
     }
   },
-  "firms_last_watermark": "2026-09-23 954",
+  "firms_last_watermark": "2026-09-24 937",
   "last_alert_slot": [
-    "2026-09-23",
-    14
+    "2026-09-24",
+    0
   ]
 }
