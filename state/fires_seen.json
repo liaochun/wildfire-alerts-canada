@@ -875,6 +875,13 @@
       "size": 3448,
       "stage": "OC"
     },
+    "2026_ON_HAL_FIRE_010": {
+      "agency": "ON",
+      "lat": 45.2291,
+      "lon": -76.8404,
+      "size": 0.5,
+      "stage": "OC"
+    },
     "2026_ON_NIP_FIRE_012": {
       "agency": "ON",
       "lat": 53.5811,
@@ -1614,6 +1621,6 @@
   "firms_last_watermark": "2026-09-26 858",
   "last_alert_slot": [
     "2026-09-26",
-    8
+    11
   ]
 }
