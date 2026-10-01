@@ -602,13 +602,6 @@
       "size": 0.1,
       "stage": "UC"
     },
-    "2026_BC_2026-V62239": {
-      "agency": "BC",
-      "lat": 48.84005,
-      "lon": -124.17592,
-      "size": 1.56,
-      "stage": "UC"
-    },
     "2026_BC_2026-V62254": {
       "agency": "BC",
       "lat": 49.02658,
@@ -810,6 +803,13 @@
       "lat": 48.246,
       "lon": -91.8437,
       "size": 3448,
+      "stage": "OC"
+    },
+    "2026_ON_KEN_FIRE_037": {
+      "agency": "ON",
+      "lat": 50.1476,
+      "lon": -94.0084,
+      "size": 0.1,
       "stage": "OC"
     },
     "2026_ON_NIP_FIRE_012": {
@@ -1478,9 +1478,9 @@
       "stage": "OC"
     }
   },
-  "firms_last_watermark": "2026-09-30 922",
+  "firms_last_watermark": "2026-10-01 905",
   "last_alert_slot": [
-    "2026-09-30",
-    10
+    "2026-10-01",
+    2
   ]
 }
