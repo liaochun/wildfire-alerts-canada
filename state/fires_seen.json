@@ -397,7 +397,7 @@
       "lat": 49.20017,
       "lon": -116.5695,
       "size": 0.1,
-      "stage": "OC"
+      "stage": "BH"
     },
     "2026_BC_2026-R11095": {
       "agency": "BC",
@@ -1313,6 +1313,6 @@
   "firms_last_watermark": "2026-10-04 947",
   "last_alert_slot": [
     "2026-10-04",
-    3
+    7
   ]
 }
