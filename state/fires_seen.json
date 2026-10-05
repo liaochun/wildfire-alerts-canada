@@ -49,13 +49,6 @@
       "size": 0.1,
       "stage": "UC"
     },
-    "2026_AB_CWF-101-2026": {
-      "agency": "AB",
-      "lat": 51.18822,
-      "lon": -114.8408,
-      "size": 0.33,
-      "stage": "UC"
-    },
     "2026_AB_LWF-093-2026": {
       "agency": "AB",
       "lat": 54.69543,
@@ -1331,9 +1324,9 @@
       "stage": "OC"
     }
   },
-  "firms_last_watermark": "2026-10-04 947",
+  "firms_last_watermark": "2026-10-05 930",
   "last_alert_slot": [
-    "2026-10-04",
-    9
+    "2026-10-05",
+    0
   ]
 }
