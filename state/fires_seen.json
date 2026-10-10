@@ -425,7 +425,7 @@
       "lat": 54.34092,
       "lon": -126.6745,
       "size": 1.15,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_BC_2026-R41118": {
       "agency": "BC",
@@ -648,7 +648,7 @@
       "agency": "ON",
       "lat": 45.6346,
       "lon": -78.8054,
-      "size": 0.3,
+      "size": 0.4,
       "stage": "OC"
     },
     "2026_ON_NIP_FIRE_025": {
@@ -1149,9 +1149,9 @@
       "stage": "OC"
     }
   },
-  "firms_last_watermark": "2026-10-09 954",
+  "firms_last_watermark": "2026-10-10 934",
   "last_alert_slot": [
-    "2026-10-09",
-    10
+    "2026-10-10",
+    0
   ]
 }
