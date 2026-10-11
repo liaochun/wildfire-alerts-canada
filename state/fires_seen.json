@@ -686,6 +686,13 @@
       "size": 419,
       "stage": "OC"
     },
+    "2026_ON_WAW_FIRE_035": {
+      "agency": "ON",
+      "lat": 47.2527,
+      "lon": -84.5886,
+      "size": 4,
+      "stage": "OC"
+    },
     "2026_PC_2026KO4": {
       "agency": "PC",
       "lat": 51.225,
@@ -1131,6 +1138,6 @@
   "firms_last_watermark": "2026-10-11 915",
   "last_alert_slot": [
     "2026-10-11",
-    5
+    8
   ]
 }
