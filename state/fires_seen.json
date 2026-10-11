@@ -63,13 +63,6 @@
       "size": 0.15,
       "stage": "UC"
     },
-    "2026_AB_MWF-056-2026": {
-      "agency": "AB",
-      "lat": 56.73927,
-      "lon": -111.35812,
-      "size": 0.97,
-      "stage": "UC"
-    },
     "2026_BC_2026-C10467": {
       "agency": "BC",
       "lat": 53.35255,
@@ -656,14 +649,7 @@
       "lat": 45.6346,
       "lon": -78.8054,
       "size": 0.4,
-      "stage": "BH"
-    },
-    "2026_ON_HAL_FIRE_031": {
-      "agency": "ON",
-      "lat": 45.199,
-      "lon": -76.8696,
-      "size": 0.1,
-      "stage": "OC"
+      "stage": "UC"
     },
     "2026_ON_NIP_FIRE_025": {
       "agency": "ON",
@@ -1145,6 +1131,6 @@
   "firms_last_watermark": "2026-10-11 915",
   "last_alert_slot": [
     "2026-10-11",
-    1
+    5
   ]
 }
