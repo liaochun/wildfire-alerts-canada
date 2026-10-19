@@ -525,6 +525,13 @@
       "size": 710,
       "stage": "UC"
     },
+    "2026_MB_MB-NO228": {
+      "agency": "MB",
+      "lat": 54.50556,
+      "lon": -99.0375,
+      "size": 0.1,
+      "stage": "OC"
+    },
     "2026_NT_FS011-26": {
       "agency": "NT",
       "lat": 61.39383,
@@ -1044,9 +1051,9 @@
       "stage": "OC"
     }
   },
-  "firms_last_watermark": "2026-10-18 845",
+  "firms_last_watermark": "2026-10-19 826",
   "last_alert_slot": [
-    "2026-10-18",
-    11
+    "2026-10-19",
+    2
   ]
 }
