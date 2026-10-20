@@ -635,7 +635,7 @@
       "lat": 49.5269,
       "lon": -85.0011,
       "size": 0.1,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_PC_2026KO4": {
       "agency": "PC",
@@ -1051,9 +1051,9 @@
       "stage": "OC"
     }
   },
-  "firms_last_watermark": "2026-10-19 826",
+  "firms_last_watermark": "2026-10-20 947",
   "last_alert_slot": [
-    "2026-10-19",
-    14
+    "2026-10-20",
+    0
   ]
 }
