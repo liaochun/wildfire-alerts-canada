@@ -1023,9 +1023,9 @@
       "stage": "OC"
     }
   },
-  "firms_last_watermark": "2026-10-20 947",
+  "firms_last_watermark": "2026-10-21 930",
   "last_alert_slot": [
-    "2026-10-20",
-    14
+    "2026-10-21",
+    0
   ]
 }
