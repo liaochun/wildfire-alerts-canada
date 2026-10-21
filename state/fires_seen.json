@@ -110,14 +110,14 @@
       "lat": 57.88342,
       "lon": -123.64605,
       "size": 42,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_BC_2026-G92324": {
       "agency": "BC",
       "lat": 57.9273,
       "lon": -123.37745,
       "size": 0.5,
-      "stage": "BH"
+      "stage": "UC"
     },
     "2026_BC_2026-K51490": {
       "agency": "BC",
@@ -623,6 +623,13 @@
       "size": 18,
       "stage": "BH"
     },
+    "2026_PC_2026NA4": {
+      "agency": "PC",
+      "lat": 61.4051,
+      "lon": -123.7338,
+      "size": 23.8,
+      "stage": "OC"
+    },
     "2026_PC_2026RE2": {
       "agency": "PC",
       "lat": 51.1348,
@@ -1026,6 +1033,6 @@
   "firms_last_watermark": "2026-10-21 930",
   "last_alert_slot": [
     "2026-10-21",
-    0
+    4
   ]
 }
