@@ -602,6 +602,13 @@
       "size": 254,
       "stage": "OC"
     },
+    "2026_ON_SLK_FIRE_118": {
+      "agency": "ON",
+      "lat": 52.9137,
+      "lon": -89.8057,
+      "size": 1,
+      "stage": "OC"
+    },
     "2026_ON_THU_FIRE_036": {
       "agency": "ON",
       "lat": 50.6828,
@@ -615,13 +622,6 @@
       "lon": -88.9017,
       "size": 419,
       "stage": "OC"
-    },
-    "2026_ON_WAW_FIRE_035": {
-      "agency": "ON",
-      "lat": 47.2527,
-      "lon": -84.5886,
-      "size": 6.5,
-      "stage": "UC"
     },
     "2026_PC_2026KO4": {
       "agency": "PC",
@@ -1047,6 +1047,6 @@
   "firms_last_watermark": "2026-10-23 852",
   "last_alert_slot": [
     "2026-10-23",
-    2
+    5
   ]
 }
