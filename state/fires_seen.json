@@ -574,6 +574,13 @@
       "size": 30158.6,
       "stage": "UC"
     },
+    "2026_ON_DRY_FIRE_069": {
+      "agency": "ON",
+      "lat": 49.4847,
+      "lon": -92.9446,
+      "size": 0.1,
+      "stage": "OC"
+    },
     "2026_ON_FOR_FIRE_013": {
       "agency": "ON",
       "lat": 48.2768,
@@ -1047,6 +1054,6 @@
   "firms_last_watermark": "2026-10-25 956",
   "last_alert_slot": [
     "2026-10-25",
-    2
+    5
   ]
 }
