@@ -532,6 +532,13 @@
       "size": 0.1,
       "stage": "UC"
     },
+    "2026_NB_2026372": {
+      "agency": "NB",
+      "lat": 46.21237,
+      "lon": -66.00708,
+      "size": 2,
+      "stage": "UC"
+    },
     "2026_NT_FS011-26": {
       "agency": "NT",
       "lat": 61.39383,
@@ -593,7 +600,7 @@
       "lat": 49.4847,
       "lon": -92.9446,
       "size": 0.1,
-      "stage": "OC"
+      "stage": "UC"
     },
     "2026_ON_FOR_FIRE_013": {
       "agency": "ON",
@@ -1065,9 +1072,9 @@
       "stage": "OC"
     }
   },
-  "firms_last_watermark": "2026-10-25 956",
+  "firms_last_watermark": "2026-10-26 934",
   "last_alert_slot": [
-    "2026-10-25",
-    14
+    "2026-10-26",
+    2
   ]
 }
