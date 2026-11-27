@@ -235,7 +235,7 @@
       "agency": "PC",
       "lat": 51.1348,
       "lon": -117.9208,
-      "size": 111,
+      "size": 113.7,
       "stage": "UC"
     },
     "2026_PC_2026TH1": {
@@ -508,6 +508,6 @@
   "firms_last_watermark": "2026-11-02 904",
   "last_alert_slot": [
     "2026-11-26",
-    0
+    9
   ]
 }
